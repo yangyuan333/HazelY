@@ -9,3 +9,6 @@
 #else
 #error Hazel only support Windows!
 #endif
+
+// 位运算操作符宏定义
+#define BIT(x) (1 << x)
