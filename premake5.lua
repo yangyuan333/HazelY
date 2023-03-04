@@ -11,6 +11,13 @@ workspace "HazelY"
 
 dirname = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
+IncludeDir = {}
+IncludeDir["GLFW"] = "Hazel/vendor/GLFW/include"
+
+---相当于把GLFW目录下写的premake5.lua给include进来
+include "Hazel/vendor/GLFW"
+
+
 project "Hazel"
     location "Hazel"
     kind "SharedLib" --生成类型
@@ -28,7 +35,14 @@ project "Hazel"
     includedirs
     {
         "%{wks.location}/%{prj.name}/src",
-        "%{wks.location}/%{prj.name}/vendor/spdlog/include"
+        "%{wks.location}/%{prj.name}/vendor/spdlog/include",
+        "%{IncludeDir.GLFW}"
+    }
+
+    links
+    {
+        "GLFW",
+        "opengl32.lib"
     }
 
     filter "system:windows"

@@ -2,6 +2,7 @@
 
 #include "Hazel/Core.h"
 #include <string>
+#include <iostream>
 #include <functional>
 
 namespace Hazel {
@@ -23,6 +24,8 @@ namespace Hazel {
 		EventCategoryMouseButton = BIT(4)
 	};
 
+// 利用宏进行函数定义，简化书写
+// 并且这里都是定义的virtual function，目的就是为了实现类别多态，很妙
 #define EVENT_CLASS_TYPE(type) static EventType GetStaticType(){return EventType::type;}\
 								virtual EventType GetEventType()const override{return GetStaticType();}\
 								virtual const char* GetName() const override {return #type;}
@@ -61,7 +64,7 @@ namespace Hazel {
 			return false;
 		}
 	private:
-		Event& m_Event;
+		Event& m_Event; // 这相当于是外部变量，const作用不到它身上
 	};
 
 	inline std::ostream& operator<<(std::ostream& os, const Event& e) {
