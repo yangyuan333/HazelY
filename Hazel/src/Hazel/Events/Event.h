@@ -34,7 +34,6 @@ namespace Hazel {
 
 	class HAZEL_API Event {
 
-		friend class EventDispatcher;
 	public:
 		virtual EventType GetEventType() const = 0;
 		virtual const char* GetName() const = 0;
@@ -45,9 +44,7 @@ namespace Hazel {
 			return GetCategoryFlags() & category;
 		}
 
-	// 三种修饰符的作用喝区别还是要搞清楚
-	protected:
-		bool m_Handled = false;
+		bool Handled = false;
 	};
 
 	// 这里为什么不给每个类型的事件加一个处理函数呢？实现多态效果。
@@ -60,7 +57,7 @@ namespace Hazel {
 		template <typename T>
 		bool Dispatch(EventFn<T> func) {
 			if (m_Event.GetEventType() == T::GetStaticType()) {
-				m_Event.m_Handled = func(*(T*)&m_Event); // 查一下这里为什么不用 dynamic_cast
+				m_Event.Handled = func(*(T*)&m_Event); // 查一下这里为什么不用 dynamic_cast
 				return true;
 			}
 			return false;
