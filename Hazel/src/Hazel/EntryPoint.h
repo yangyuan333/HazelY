@@ -8,6 +8,7 @@
 #ifdef HZ_PLATFORM_WINDOWS
 
 // 这个声明也是可要可不要的，因为这个头文件最终会被include到sandbox中执行
+
 extern Hazel::Application* Hazel::CreateApplication();
 
 int main(int argc, char** argv) {

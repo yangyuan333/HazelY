@@ -165,7 +165,6 @@
     <ClCompile Include="src\Hazel\Application.cpp" />
     <ClCompile Include="src\Hazel\Log.cpp" />
     <ClCompile Include="src\Windows\Windows\WindowsWindow.cpp" />
-    <ClCompile Include="src\Windows\Windows\check.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="vendor\GLFW\GLFW.vcxproj">

@@ -57,8 +57,5 @@
     <ClCompile Include="src\Windows\Windows\WindowsWindow.cpp">
       <Filter>Windows\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\Windows\Windows\check.cpp">
-      <Filter>Windows\Windows</Filter>
-    </ClCompile>
   </ItemGroup>
 </Project>

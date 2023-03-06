@@ -50,6 +50,8 @@ namespace Hazel {
 		bool m_Handled = false;
 	};
 
+	// 这里为什么不给每个类型的事件加一个处理函数呢？实现多态效果。
+	// 有一种解释就是，每种事件的处理可能也有多种选择，通过这种传递函数的方式更加灵活
 	class EventDispatcher {
 		template<typename T>
 		using EventFn = std::function<bool(T&)>;
