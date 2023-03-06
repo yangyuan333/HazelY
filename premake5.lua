@@ -13,10 +13,11 @@ dirname = "%{cfg.buildcfg}-%{cfg.system}-%{cfg.architecture}"
 
 IncludeDir = {}
 IncludeDir["GLFW"] = "Hazel/vendor/GLFW/include"
+IncludeDir["Glad"] = "Hazel/vendor/Glad/include"
 
 ---相当于把GLFW目录下写的premake5.lua给include进来
 include "Hazel/vendor/GLFW"
-
+include "Hazel/vendor/Glad"
 
 project "Hazel"
     location "Hazel"
@@ -36,13 +37,15 @@ project "Hazel"
     {
         "%{wks.location}/%{prj.name}/src",
         "%{wks.location}/%{prj.name}/vendor/spdlog/include",
-        "%{IncludeDir.GLFW}"
+        "%{IncludeDir.GLFW}",
+        "%{IncludeDir.Glad}"
     }
 
     links
     {
+        "Glad",
         "GLFW",
-        "opengl32.lib"
+        "opengl32.lib",
     }
 
     filter "system:windows"
@@ -53,7 +56,8 @@ project "Hazel"
         defines
         {
             "HZ_PLATFORM_WINDOWS",
-            "HZ_BUILD_DLL"
+            "HZ_BUILD_DLL",
+            "GLFW_INCLUDE_NONE"
         }
 
         postbuildcommands
@@ -112,7 +116,8 @@ project "SandBox"
 
         defines
         {
-            "HZ_PLATFORM_WINDOWS"
+            "HZ_PLATFORM_WINDOWS",
+            "GLFW_INCLUDE_NONE"
         }
 
     filter "configurations:Debug"

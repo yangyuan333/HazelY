@@ -4,6 +4,7 @@
 #include "Hazel/Events/MouseEvent.h"
 #include "Hazel/Events/KeyEvent.h"
 
+#include <glad/glad.h>
 
 namespace Hazel {
 
@@ -50,6 +51,11 @@ namespace Hazel {
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(m_Window);
+
+		// 还得去把glfw这个部分看了，外接拓展库的链接调用
+		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
+		HZ_CORE_ASSERT(status, "Failed to initailize Glad!");
+
 		// 这个函数是干什么的？
 		glfwSetWindowUserPointer(m_Window, &m_Data);
 		SetVSync(true);
