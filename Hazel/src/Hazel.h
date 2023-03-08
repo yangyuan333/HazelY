@@ -7,6 +7,10 @@
 #include "Hazel/Layer.h"
 #include "Hazel/ImGui/ImGuiLayer.h"
 
+#include "Hazel/Input.h"
+#include "Hazel/KeyCodes.h"
+#include "Hazel/MouseButtonCodes.h"
+
 #include "../../../HazelY/Hazel/src/Hazel/ImGui/ImGuiLayer.h"
 
 // ---Entry Point----------------------

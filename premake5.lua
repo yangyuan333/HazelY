@@ -25,6 +25,7 @@ project "Hazel"
     location "Hazel"
     kind "SharedLib" --生成类型
     language "C++"
+    staticruntime "off"
     
     targetdir ("%{wks.location}/bin/"..dirname.."/%{prj.name}")
     objdir ("%{wks.location}/bin-int/"..dirname.."/%{prj.name}")
@@ -55,7 +56,7 @@ project "Hazel"
     filter "system:windows"
         cppdialect "C++17"
         systemversion "latest"
-        staticruntime "On"
+        ---staticruntime "On"
 
         defines
         {
@@ -71,23 +72,24 @@ project "Hazel"
 
     filter "configurations:Debug"
         defines "HZ_DEBUG"
-        buildoptions "/MDd"
+        runtime "Debug"
         symbols "On"
   
     filter "configurations:Release"
         defines "HZ_RELEASE"
-        buildoptions "/MD"
+        runtime "Release"
         optimize "On"
 
     filter "configurations:Dist"
         defines "HZ_DIST"
-        buildoptions "/MD"
+        runtime "Release"
         optimize "On"
 
 project "SandBox"
     location "SandBox"
     kind "ConsoleApp" --生成类型
     language "C++"
+    staticruntime "off"
 
     targetdir ("%{wks.location}/bin/"..dirname.."/%{prj.name}")
     objdir ("%{wks.location}/bin-int/"..dirname.."/%{prj.name}")
@@ -124,7 +126,7 @@ project "SandBox"
     filter "system:windows"
         cppdialect "C++17"
         systemversion "latest"
-        staticruntime "On"
+        ---staticruntime "On"
 
         defines
         {
@@ -134,15 +136,16 @@ project "SandBox"
 
     filter "configurations:Debug"
         defines "HZ_DEBUG"
-        buildoptions "/MDd"
+        runtime "Debug"
         symbols "On"
   
     filter "configurations:Release"
         defines "HZ_RELEASE"
-        buildoptions "/MD"
+        runtime "Release"
         optimize "On"
 
     filter "configurations:Dist"
         defines "HZ_DIST"
+        runtime "Release"
         buildoptions "/MD"
         optimize "On"
