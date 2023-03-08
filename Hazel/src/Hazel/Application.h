@@ -19,6 +19,9 @@ namespace Hazel {
 		void PushLayer(Layer* layer);
 		void PushOverlayer(Layer* layer);
 
+		static Application& Get() { return *s_Instance; }
+		Window& GetWindow() { return *m_Window; }
+
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
 	private:
@@ -28,6 +31,8 @@ namespace Hazel {
 		std::unique_ptr<Window> m_Window;
 		bool m_Running;
 		LayerStack m_LayerStack;
+	private:
+		static Application* s_Instance;
 	};
 
 	// 看似是用以外部调用，但实际不是的，因为这个.h文件会被include到sandbox上
