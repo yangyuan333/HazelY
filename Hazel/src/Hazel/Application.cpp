@@ -17,6 +17,9 @@ namespace Hazel {
 		s_Instance = this;
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
+
+		m_ImGuiLayer = new ImGuiLayer();
+		PushOverlayer(m_ImGuiLayer);
 	}
 	
 	Application::~Application() {
@@ -46,12 +49,17 @@ namespace Hazel {
 		// 懂了，GLFW才是系统回调的根源，目前只引了imgui的opengl部分，只是绘制部分，最简单的就是在此处顺带添加glfw的init
 		while (m_Running) {
 
+			glClear(GL_COLOR_BUFFER_BIT);
+
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate();
 			}
 
-			//auto [x, y] = Input::GetMousePostion();
-			//HZ_CORE_TRACE("{0},{1}", x, y);
+			m_ImGuiLayer->Begin();
+			for (Layer* layer : m_LayerStack) {
+				layer->OnImGuiRender();
+			}
+			m_ImGuiLayer->End();
 
 			m_Window->OnUpdate();
 		}

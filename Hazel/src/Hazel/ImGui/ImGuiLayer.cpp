@@ -1,7 +1,11 @@
 #include "ImGuiLayer.h"
 
 #include "imgui.h"
-#include "Platform/OpenGL/ImGuiOpenGLRenderer.h"
+//#include "Platform/OpenGL/ImGuiOpenGLRenderer.h"
+
+#define IMGUI_IMPL_OPENGL_LOADER_GLAD
+#include "examples/imgui_impl_opengl3.h"
+#include "examples/imgui_impl_glfw.h"
 
 #include <GLFW/glfw3.h>
 #include <glad/glad.h>
@@ -17,8 +21,10 @@ namespace Hazel {
 
 	ImGuiLayer::~ImGuiLayer()
 	{
+
 	}
 
+	/*
 	void ImGuiLayer::OnAttach()
 	{
 		ImGui::CreateContext();
@@ -53,13 +59,71 @@ namespace Hazel {
 		// 为什么没有调用GLFW的init呢
 		ImGui_ImplOpenGL3_Init("#version 410");
 	}
+	*/
+	void ImGuiLayer::OnDetach() {
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
+	}
 
-	void ImGuiLayer::OnDetach()
-	{
+	void ImGuiLayer::OnAttach() {
+		
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO& io = ImGui::GetIO(); (void)io;
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;       // Enable Keyboard Controls
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;           // Enable Docking
+		io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;         // Enable Multi-Viewport / Platform Windows
 
+		// Setup Dear ImGui style
+		ImGui::StyleColorsDark();
+
+		// When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
+		ImGuiStyle& style = ImGui::GetStyle();
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			style.WindowRounding = 0.0f;
+			style.Colors[ImGuiCol_WindowBg].w = 1.0f;
+		}
+
+		Application& app = Application::Get();
+		GLFWwindow* window = static_cast<GLFWwindow*>(app.GetWindow().GetNativeWindow());
+		// Setup Platform/Renderer bindings
+		ImGui_ImplGlfw_InitForOpenGL(window, true);
+		ImGui_ImplOpenGL3_Init("#version 410");
+	}
+
+	void ImGuiLayer::Begin() {
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+	}
+
+	void ImGuiLayer::End() {
+
+		ImGuiIO& io = ImGui::GetIO();
+		Application& app = Application::Get();
+		io.DisplaySize = ImVec2(app.GetWindow().GetWidth(), app.GetWindow().GetHeight());
+
+		ImGui::Render();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+		{
+			GLFWwindow* backup_current_context = glfwGetCurrentContext();
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+			glfwMakeContextCurrent(backup_current_context);
+		}
+	}
+
+	void ImGuiLayer::OnImGuiRender() {
+		static bool show;
+		ImGui::ShowDemoWindow(&show);
 	}
 
 	// Update 这边不是已经可以进行事件处理了吗
+	/*
 	void ImGuiLayer::OnUpdate()
 	{
 		ImGuiIO& io = ImGui::GetIO();
@@ -79,7 +143,8 @@ namespace Hazel {
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	}
-
+	*/
+	/*
 	void ImGuiLayer::OnEvent(Event& event) {
 
 		EventDispatcher dispatcher(event);
@@ -91,9 +156,9 @@ namespace Hazel {
 		dispatcher.Dispatch<KeyReleasedEvent>(std::bind(&ImGuiLayer::OnKeyReleasedEvent, this, std::placeholders::_1));
 		dispatcher.Dispatch<WindowResizeEvent>(std::bind(&ImGuiLayer::OnWindowResizedEvent, this, std::placeholders::_1));
 		dispatcher.Dispatch<KeyTypedEvent>(std::bind(&ImGuiLayer::OnKeyTypedEvent, this, std::placeholders::_1));
-		
 	}
-
+	*/
+	/*
 	bool ImGuiLayer::OnMouseButtonPressedEvent(MouseButtonPressedEvent& e) {
 		// 这里的回调函数都是设置ImGui的状态，但是还是没有给ImGui设置回调函数
 		// 这里其实就是简化复制了ImGuiGLFW中对应回调函数的东西
@@ -169,5 +234,5 @@ namespace Hazel {
 		glViewport(0, 0, e.GetWidth(), e.GetHeight());
 		return false;
 	}
-
+	*/
 }

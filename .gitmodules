@@ -7,3 +7,9 @@
 [submodule "Hazel/vendor/imgui"]
 	path = Hazel/vendor/imgui
 	url = https://github.com/yangyuan333/imgui
+[submodule "Hazel/vendor/gm"]
+	path = Hazel/vendor/gm
+	url = https://github.com/Groovounet/glm
+[submodule "Hazel/vendor/glm"]
+	path = Hazel/vendor/glm
+	url = https://github.com/Groovounet/glm

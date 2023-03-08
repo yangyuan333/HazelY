@@ -158,6 +158,7 @@ namespace Hazel {
 	}
 
 	void WindowsWindow::OnUpdate() {
+		//glClear(GL_COLOR_BUFFER_BIT);
 		// 先处理事件
 		glfwPollEvents();
 		// 交换缓存帧
