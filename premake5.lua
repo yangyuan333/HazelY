@@ -24,7 +24,8 @@ include "Hazel/vendor/imgui"
 
 project "Hazel"
     location "Hazel"
-    kind "SharedLib" --生成类型
+    --kind "SharedLib" --生成类型
+    kind "StaticLib"
     language "C++"
     staticruntime "off"
     
@@ -69,10 +70,10 @@ project "Hazel"
             "GLFW_INCLUDE_NONE"
         }
 
-        postbuildcommands
-		{
-			("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. dirname .. "/SandBox")
-		}
+        -- postbuildcommands
+		-- {
+		-- 	("{COPY} %{cfg.buildtarget.relpath} ../bin/" .. dirname .. "/SandBox")
+		-- }
 
     filter "configurations:Debug"
         defines "HZ_DEBUG"
@@ -124,7 +125,7 @@ project "SandBox"
         "ImGui",
         "Glad",
         "GLFW",
-        "opengl32.lib",
+        "opengl32.lib"
     }
 
     filter "system:windows"
