@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Hazel/Renderer/Buffer.h"
+#include <glad/glad.h>
 
 namespace Hazel {
 
@@ -15,8 +16,13 @@ namespace Hazel {
 
 		void Bind() const override;
 		void Unbind() const override;
+
+		void SetLayout(const BufferLayout& layout) override;
+		const BufferLayout& GetBufferLayout() const override;
+
 	private:
 		uint32_t m_RendererID;
+		BufferLayout m_BufferLayout;
 	};
 
 	class OpenGLIndexBuffer :public IndexBuffer {

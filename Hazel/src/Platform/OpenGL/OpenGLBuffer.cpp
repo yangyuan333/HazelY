@@ -21,6 +21,14 @@ namespace Hazel {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 	}
 
+	void OpenGLVertexBuffer::SetLayout(const BufferLayout& layout) {
+		m_BufferLayout = layout;
+	}
+	
+	const BufferLayout& OpenGLVertexBuffer::GetBufferLayout() const {
+		return m_BufferLayout;
+	}
+
 	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count)
 		:m_Count(count) {
 		glCreateBuffers(1, &m_RendererID);
