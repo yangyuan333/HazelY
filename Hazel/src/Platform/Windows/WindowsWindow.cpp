@@ -3,7 +3,7 @@
 #include "Hazel/Events/ApplicationEvent.h"
 #include "Hazel/Events/MouseEvent.h"
 #include "Hazel/Events/KeyEvent.h"
-
+#include "Platform/OpenGL/OpenglContext.h"
 #include <glad/glad.h>
 
 namespace Hazel {
@@ -50,11 +50,9 @@ namespace Hazel {
 		}
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
-		glfwMakeContextCurrent(m_Window);
-
-		// 还得去把glfw这个部分看了，外接拓展库的链接调用
-		int status = gladLoadGLLoader((GLADloadproc)glfwGetProcAddress);
-		HZ_CORE_ASSERT(status, "Failed to initailize Glad!");
+		
+		m_context = new OpenglContext(m_Window);
+		m_context->init();
 
 		// 这个函数是干什么的？
 		glfwSetWindowUserPointer(m_Window, &m_Data);
@@ -162,7 +160,7 @@ namespace Hazel {
 		// 先处理事件
 		glfwPollEvents();
 		// 交换缓存帧
-		glfwSwapBuffers(m_Window);
+		m_context->SwapBuffer();
 	}
 
 	// 这些都是声明东西 

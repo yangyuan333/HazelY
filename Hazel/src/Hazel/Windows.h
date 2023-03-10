@@ -2,6 +2,7 @@
 
 #include "Hazel/Core.h"
 #include "Hazel/Events/Event.h"
+#include "Hazel/Renderer/GraphicsContext.h"
 
 namespace Hazel {
 	// 他为什么没有使用 HAZEL_API呢？他不需要被第三方项目调用吗
@@ -37,6 +38,9 @@ namespace Hazel {
 		// 同时这个类是纯虚类，因此不会被实例化，所以只声明，留给子类定义是ok的
 		// 函数本来就具有这种性质---可以只被声明，只有被调用时才会去link
 		static Window* Create(const WindowProps& props = WindowProps());
+	
+	protected:
+		GraphicsContext* m_context;
 	};
 
 }

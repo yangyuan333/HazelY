@@ -27,7 +27,8 @@ project "Hazel"
     --kind "SharedLib" --生成类型
     kind "StaticLib"
     language "C++"
-    staticruntime "off"
+    cppdialect "C++17"
+    staticruntime "on"
     
     targetdir ("%{wks.location}/bin/"..dirname.."/%{prj.name}")
     objdir ("%{wks.location}/bin-int/"..dirname.."/%{prj.name}")
@@ -59,9 +60,7 @@ project "Hazel"
     }
 
     filter "system:windows"
-        cppdialect "C++17"
         systemversion "latest"
-        ---staticruntime "On"
 
         defines
         {
@@ -94,7 +93,8 @@ project "SandBox"
     location "SandBox"
     kind "ConsoleApp" --生成类型
     language "C++"
-    staticruntime "off"
+    cppdialect "C++17"
+    staticruntime "on"
 
     targetdir ("%{wks.location}/bin/"..dirname.."/%{prj.name}")
     objdir ("%{wks.location}/bin-int/"..dirname.."/%{prj.name}")
@@ -129,9 +129,7 @@ project "SandBox"
     }
 
     filter "system:windows"
-        cppdialect "C++17"
         systemversion "latest"
-        ---staticruntime "On"
 
         defines
         {
@@ -152,5 +150,5 @@ project "SandBox"
     filter "configurations:Dist"
         defines "HZ_DIST"
         runtime "Release"
-        buildoptions "/MD"
+        -- buildoptions "/MD"
         optimize "On"

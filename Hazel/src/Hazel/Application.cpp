@@ -20,6 +20,57 @@ namespace Hazel {
 
 		m_ImGuiLayer = new ImGuiLayer();
 		PushOverlayer(m_ImGuiLayer);
+
+		// 复习一下opengl的基本流程和概念了
+		glGenVertexArrays(1, &m_VertexArray); // VAO
+		glBindVertexArray(m_VertexArray);
+
+	
+		float vertices[3 * 3] = {
+			-0.5f,-0.5f,0.0f,
+			0.5f,-0.5f,0.0f,
+			0.0f,0.5f,0.0f
+		};
+		unsigned int index[3] = {
+			0,1,2
+		};
+		m_VertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
+
+		glEnableVertexAttribArray(0);
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), nullptr);
+		
+		m_IndexBuffer.reset(IndexBuffer::Create(index, sizeof(index) / sizeof(uint32_t)));
+		
+		glBindVertexArray(0);
+		m_VertexBuffer->Unbind();
+		m_IndexBuffer->Unbind();
+
+		std::string vertexSrc = R"(
+			#version 330 core
+			layout(location = 0) in vec3 a_Position;
+			out vec3 v_Position;
+			void main()
+			{
+				gl_Position = vec4(a_Position,1.0f);
+				v_Position = (a_Position + 1.0f)/2.0f;
+			}
+	
+		)";	
+
+		std::string pragmentSrc = R"(
+			#version 330 core
+			layout(location = 0) out vec4 color;
+			in vec3 v_Position;
+
+			void main()
+			{
+				//color = vec4(0.8,0.2,0.3,1.0);
+				color = vec4(v_Position,1.0f);
+			}
+		)";
+
+		m_Shader = std::make_shared<Shader>(vertexSrc, pragmentSrc);
+		m_Shader->Bind();
 	}
 	
 	Application::~Application() {
@@ -50,6 +101,10 @@ namespace Hazel {
 		while (m_Running) {
 
 			glClear(GL_COLOR_BUFFER_BIT);
+
+			glBindVertexArray(m_VertexArray);
+			glDrawElements(GL_TRIANGLES, m_IndexBuffer->GetCount(), GL_UNSIGNED_INT, nullptr);
+
 
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate();

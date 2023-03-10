@@ -4,6 +4,8 @@
 #include "Hazel/Events/ApplicationEvent.h"
 #include "Hazel/LayerStack.h"
 #include "ImGui/ImGuiLayer.h"
+#include "Hazel/Renderer/Shader.h"
+#include "Hazel/Renderer/Buffer.h"
 
 #include <memory>
 
@@ -25,6 +27,7 @@ namespace Hazel {
 
 	private:
 		bool OnWindowClose(WindowCloseEvent& e);
+
 	private:
 		// 便于自动销毁
 		// 一个窗口只会与一个Application结合在一起
@@ -33,6 +36,15 @@ namespace Hazel {
 		ImGuiLayer* m_ImGuiLayer;
 		bool m_Running;
 		LayerStack m_LayerStack;
+
+		uint32_t m_VertexArray;
+
+		// 为什么只有一个呢？
+		// 因为渲染是一个一个来的，所以...一个就够用了，
+		std::shared_ptr<Shader> m_Shader;
+		std::shared_ptr<VertexBuffer> m_VertexBuffer;
+		std::shared_ptr<IndexBuffer> m_IndexBuffer;
+
 	private:
 		static Application* s_Instance;
 	};
