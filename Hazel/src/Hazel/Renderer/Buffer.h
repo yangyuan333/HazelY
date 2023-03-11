@@ -8,7 +8,7 @@
 // 顶点属性的记录分配不封装嘛？
 // VAO这种不封装？
 // 那这样封装有什么意义呢？opengl的代码还是散在外面
-
+// Vertex attribute完成了封装
 namespace Hazel {
 
 	enum class ShaderDataType {
@@ -96,6 +96,7 @@ namespace Hazel {
 	class BufferLayout {
 	public:
 		// 为什么需要一个默认构造函数
+		// 因为他可能作为其他类的一个成员变量---并且没有初值
 		BufferLayout() {}
 		BufferLayout(std::initializer_list<BufferElements> elements)
 			:m_Elements(elements)

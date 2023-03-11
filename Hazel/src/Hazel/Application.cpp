@@ -2,40 +2,11 @@
 #include "Log.h"
 #include <glad/glad.h>
 #include "Hazel/Input.h"
+#include "Platform/OpenGL/OpenGLBuffer.h"
 
 namespace Hazel {
 	
 #define BIND_EVENT_FN(x) std::bind(&Application::x, this, std::placeholders::_1)
-
-	static uint32_t ShaderDataTypeToOpenGLBaseType(ShaderDataType type) {
-		switch (type)
-		{
-		case Hazel::ShaderDataType::Float:
-			return GL_FLOAT;
-		case Hazel::ShaderDataType::Float2:
-			return GL_FLOAT;
-		case Hazel::ShaderDataType::Float3:
-			return GL_FLOAT;
-		case Hazel::ShaderDataType::Float4:
-			return GL_FLOAT;
-		case Hazel::ShaderDataType::Mat3:
-			return GL_FLOAT;
-		case Hazel::ShaderDataType::Mat4:
-			return GL_FLOAT;
-		case Hazel::ShaderDataType::Int:
-			return GL_INT;
-		case Hazel::ShaderDataType::Int2:
-			return GL_INT;
-		case Hazel::ShaderDataType::Int3:
-			return GL_INT;
-		case Hazel::ShaderDataType::Int4:
-			return GL_INT;
-		case Hazel::ShaderDataType::Bool:
-			return GL_BOOL;
-		}
-		HZ_CORE_ASSERT(false, "Unknown ShaderDataType!");
-		return 0;
-	}
 
 	Application* Application::s_Instance = nullptr;
 
@@ -52,48 +23,27 @@ namespace Hazel {
 		PushOverlayer(m_ImGuiLayer);
 
 		// 复习一下opengl的基本流程和概念了
-		glGenVertexArrays(1, &m_VertexArray); // VAO
-		glBindVertexArray(m_VertexArray);
+		m_VertexArray.reset(VertexArray::Create());
 
 		float vertices[3 * 7] = {
 			-0.5f,-0.5f,0.0f, 1.0f, 0.0f ,1.0f,1.0f,
 			0.5f,-0.5f,0.0f, 0.0f, 1.0f ,1.0f,1.0f,
-			0.0f,0.5f,0.0f, 1.0f, 1.0f ,0.0f,1.0f,
+			0.0f,0.5f,0.0f, 1.0f, 1.0f ,0.0f,1.0f
 		};
 		unsigned int index[3] = {
 			0,1,2
 		};
-		m_VertexBuffer.reset(VertexBuffer::Create(vertices, sizeof(vertices)));
 
-		//BufferLayout layout = {
-		//	{ShaderDataType::Float3, "a_Position"},
-		//	{ShaderDataType::Float4, "a_Color"}
-		//};
-
+		std::shared_ptr<VertexBuffer> m_VertexBuffer(VertexBuffer::Create(vertices, sizeof(vertices)));
 		m_VertexBuffer->SetLayout({
 			{ShaderDataType::Float3, "a_Position"},
 			{ShaderDataType::Float4, "a_Color"}
 			});
-
-		uint32_t ind = 0;
-		// 这里为什么需要添加const_iterator，const beigin。
-		for (const auto& element : m_VertexBuffer->GetBufferLayout()) {
-			glEnableVertexAttribArray(ind);
-			glVertexAttribPointer(
-				ind, 
-				element.GetComponentCount(), ShaderDataTypeToOpenGLBaseType(element.Type),
-				GL_FALSE, 
-				m_VertexBuffer->GetBufferLayout().GetStride(),
-				(const void*)element.Offset);
-			++ind;
-		}
-
 		
-		m_IndexBuffer.reset(IndexBuffer::Create(index, sizeof(index) / sizeof(uint32_t)));
+		std::shared_ptr<IndexBuffer> m_IndexBuffer(IndexBuffer::Create(index, sizeof(index) / sizeof(uint32_t)));
 		
-		glBindVertexArray(0);
-		m_VertexBuffer->Unbind();
-		m_IndexBuffer->Unbind();
+		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
+		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
 
 		std::string vertexSrc = R"(
 			#version 330 core
@@ -154,9 +104,8 @@ namespace Hazel {
 
 			glClear(GL_COLOR_BUFFER_BIT);
 
-			glBindVertexArray(m_VertexArray);
-			glDrawElements(GL_TRIANGLES, m_IndexBuffer->GetCount(), GL_UNSIGNED_INT, nullptr);
-
+			m_VertexArray->Bind();
+			glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
 
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate();

@@ -6,6 +6,7 @@
 #include "ImGui/ImGuiLayer.h"
 #include "Hazel/Renderer/Shader.h"
 #include "Hazel/Renderer/Buffer.h"
+#include "Hazel/Renderer/VertexArray.h"
 
 #include <memory>
 
@@ -37,13 +38,10 @@ namespace Hazel {
 		bool m_Running;
 		LayerStack m_LayerStack;
 
-		uint32_t m_VertexArray;
-
 		// 为什么只有一个呢？
 		// 因为渲染是一个一个来的，所以...一个就够用了，
 		std::shared_ptr<Shader> m_Shader;
-		std::shared_ptr<VertexBuffer> m_VertexBuffer;
-		std::shared_ptr<IndexBuffer> m_IndexBuffer;
+		std::shared_ptr<VertexArray> m_VertexArray;
 
 	private:
 		static Application* s_Instance;
