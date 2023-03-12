@@ -106,11 +106,8 @@ namespace Hazel {
 
 			RenderCommand::SetClearColor(glm::vec4{ 0.5f, 0.5f, 0.5f ,1.0f });
 			RenderCommand::Clear();
-
 			Renderer::BeginScene();
-
 			Renderer::Submit(m_VertexArray);
-
 			Renderer::EndScene();
 
 			for (Layer* layer : m_LayerStack) {
