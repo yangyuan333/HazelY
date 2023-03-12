@@ -18,7 +18,13 @@ namespace Hazel {
 		Application();
 		virtual ~Application();
 		void Run();
-		void OnEvent(Event& e);
+		
+		virtual void OnEvent(Event& e);
+
+		virtual void OnInit() {}
+		virtual void OnShutdown() {}
+		virtual void OnUpdate() {}
+
 
 		void PushLayer(Layer* layer);
 		void PushOverlayer(Layer* layer);
@@ -34,7 +40,7 @@ namespace Hazel {
 		// 一个窗口只会与一个Application结合在一起
 		// 先不涉及多窗口系统
 		std::unique_ptr<Window> m_Window;
-		ImGuiLayer* m_ImGuiLayer;
+
 		bool m_Running;
 		LayerStack m_LayerStack;
 

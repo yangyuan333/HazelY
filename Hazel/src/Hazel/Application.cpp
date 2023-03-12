@@ -21,8 +21,8 @@ namespace Hazel {
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 
-		m_ImGuiLayer = new ImGuiLayer();
-		PushOverlayer(m_ImGuiLayer);
+		//m_ImGuiLayer = new ImGuiLayer();
+		//PushOverlayer(m_ImGuiLayer);
 
 		// 复习一下opengl的基本流程和概念了
 		m_VertexArray.reset(VertexArray::Create());
@@ -102,6 +102,7 @@ namespace Hazel {
 	void Application::Run() {
 		// 为什么这个时候ImGui的事件系统没有被调用，ImGui不是一个即插即用系统吗？
 		// 懂了，GLFW才是系统回调的根源，目前只引了imgui的opengl部分，只是绘制部分，最简单的就是在此处顺带添加glfw的init
+		OnInit();
 		while (m_Running) {
 
 			RenderCommand::SetClearColor(glm::vec4{ 0.5f, 0.5f, 0.5f ,1.0f });
@@ -114,14 +115,15 @@ namespace Hazel {
 				layer->OnUpdate();
 			}
 
-			m_ImGuiLayer->Begin();
+			ImGuiLayer::Begin();
 			for (Layer* layer : m_LayerStack) {
 				layer->OnImGuiRender();
 			}
-			m_ImGuiLayer->End();
+			ImGuiLayer::End();
 
 			m_Window->OnUpdate();
 		}
+		OnShutdown();
 	}
 
 	void Application::PushLayer(Layer* layer) {

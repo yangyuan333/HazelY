@@ -17,8 +17,8 @@ namespace Hazel {
 		void OnDetach() override;
 		void OnImGuiRender() override;
 
-		void Begin();
-		void End();
+		static void Begin();
+		static void End();
 
 	//	void OnEvent(Event& event);
 	//private:

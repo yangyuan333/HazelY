@@ -1,5 +1,5 @@
 #include <Hazel.h>
-
+#include <Hazel/ImGui/ImGuiLayer.h>
 #include <glm/glm.hpp>
 
 #include <imgui.h>
@@ -28,18 +28,18 @@ public:
 class Sandbox: public Hazel::Application {
 public:
 	Sandbox() {
-		PushOverlayer(new ExampleLayer());
+		
 	}
 	~Sandbox() override {
 
 	}
 
+	virtual void OnInit() override {
+		PushLayer(new ExampleLayer());
+		PushOverlayer(new Hazel::ImGuiLayer());
+	}
 };
 
 Hazel::Application* Hazel::CreateApplication() {
 	return new Sandbox();
 }
-
-//int main() {
-//	std::cout << int(Hazel::Renderer::GetAPI()) << std::endl;
-//}
