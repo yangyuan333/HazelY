@@ -1,3 +1,4 @@
+/*
 #pragma once
 #include "Hazel/Renderer/RendererAPI.h"
 
@@ -10,3 +11,4 @@ namespace Hazel {
 		void DrawIndexed(const std::shared_ptr<VertexArray>& vertexArray) override;
 	};
 }
+*/

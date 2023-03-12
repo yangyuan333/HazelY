@@ -1,3 +1,4 @@
+/*
 #include "VertexArray.h"
 #include "Hazel/Renderer/Renderer.h"
 #include "Platform/OpenGL/OpenGLVertexArray.h"
@@ -23,3 +24,4 @@ namespace Hazel{
 	}
 
 }
+*/

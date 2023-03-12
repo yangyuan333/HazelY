@@ -2,7 +2,7 @@
 #include "Log.h"
 #include <glad/glad.h>
 #include "Hazel/Input.h"
-#include "Platform/OpenGL/OpenGLBuffer.h"
+//#include "Platform/OpenGL/OpenGLBuffer.h"
 #include "Hazel/Renderer/Renderer.h"
 // #include "Hazel/Renderer/RenderCommand.h"
 
@@ -25,6 +25,7 @@ namespace Hazel {
 		//PushOverlayer(m_ImGuiLayer);
 
 		// 复习一下opengl的基本流程和概念了
+		/*
 		m_VertexArray.reset(VertexArray::Create());
 
 		float vertices[3 * 7] = {
@@ -75,6 +76,7 @@ namespace Hazel {
 
 		m_Shader = std::make_shared<Shader>(vertexSrc, pragmentSrc);
 		m_Shader->Bind();
+		*/
 	}
 	
 	Application::~Application() {
@@ -104,16 +106,19 @@ namespace Hazel {
 		// 懂了，GLFW才是系统回调的根源，目前只引了imgui的opengl部分，只是绘制部分，最简单的就是在此处顺带添加glfw的init
 		OnInit();
 		while (m_Running) {
-
+			/*
 			RenderCommand::SetClearColor(glm::vec4{ 0.5f, 0.5f, 0.5f ,1.0f });
 			RenderCommand::Clear();
 			Renderer::BeginScene();
 			Renderer::Submit(m_VertexArray);
 			Renderer::EndScene();
+			*/
 
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate();
 			}
+
+			Renderer::GetRenderer()->WaitAndRender();
 
 			ImGuiLayer::Begin();
 			for (Layer* layer : m_LayerStack) {

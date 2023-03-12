@@ -46,8 +46,8 @@ namespace Hazel {
 
 		// 为什么只有一个呢？
 		// 因为渲染是一个一个来的，所以...一个就够用了，
-		std::shared_ptr<Shader> m_Shader;
-		std::shared_ptr<VertexArray> m_VertexArray;
+		//std::shared_ptr<Shader> m_Shader;
+		//std::shared_ptr<VertexArray> m_VertexArray;
 
 	private:
 		static Application* s_Instance;
