@@ -28,7 +28,6 @@ public:
 class Sandbox: public Hazel::Application {
 public:
 	Sandbox() {
-		//PushLayer(new ExampleLayer());
 		PushOverlayer(new ExampleLayer());
 	}
 	~Sandbox() override {
@@ -40,3 +39,7 @@ public:
 Hazel::Application* Hazel::CreateApplication() {
 	return new Sandbox();
 }
+
+//int main() {
+//	std::cout << int(Hazel::Renderer::GetAPI()) << std::endl;
+//}

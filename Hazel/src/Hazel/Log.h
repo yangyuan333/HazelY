@@ -1,7 +1,7 @@
 #pragma once
 
 #include <memory>
-#include "Core.h"
+#include "Hazel/Core.h"
 #include "spdlog/spdlog.h"
 
 namespace Hazel {

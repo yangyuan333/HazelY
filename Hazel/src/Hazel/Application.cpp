@@ -3,6 +3,8 @@
 #include <glad/glad.h>
 #include "Hazel/Input.h"
 #include "Platform/OpenGL/OpenGLBuffer.h"
+#include "Hazel/Renderer/Renderer.h"
+// #include "Hazel/Renderer/RenderCommand.h"
 
 namespace Hazel {
 	
@@ -102,10 +104,14 @@ namespace Hazel {
 		// 懂了，GLFW才是系统回调的根源，目前只引了imgui的opengl部分，只是绘制部分，最简单的就是在此处顺带添加glfw的init
 		while (m_Running) {
 
-			glClear(GL_COLOR_BUFFER_BIT);
+			RenderCommand::SetClearColor(glm::vec4{ 0.5f, 0.5f, 0.5f ,1.0f });
+			RenderCommand::Clear();
 
-			m_VertexArray->Bind();
-			glDrawElements(GL_TRIANGLES, m_VertexArray->GetIndexBuffer()->GetCount(), GL_UNSIGNED_INT, nullptr);
+			Renderer::BeginScene();
+
+			Renderer::Submit(m_VertexArray);
+
+			Renderer::EndScene();
 
 			for (Layer* layer : m_LayerStack) {
 				layer->OnUpdate();

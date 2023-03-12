@@ -1,8 +1,10 @@
 #pragma once
 
 #include <cstdint>
+
 #include "Hazel/Core.h"
 #include "Hazel/Log.h"
+
 
 // 还没封装完吧
 // 顶点属性的记录分配不封装嘛？

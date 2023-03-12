@@ -2,6 +2,7 @@
 
 #include "Hazel/Renderer/Buffer.h"
 #include <glad/glad.h>
+#include "Hazel/Core.h"
 
 namespace Hazel {
 
