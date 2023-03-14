@@ -8,7 +8,7 @@ namespace Hazel {
 		HZ_RENDER_S2(
 			vertices,size,
 			{
-				glCreateBuffers(1, &self->m_RendererID);
+				glCreateBuffers(1, &(self->m_RendererID));
 				glBindBuffer(GL_ARRAY_BUFFER, self->m_RendererID);
 				glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
 				glBindBuffer(GL_ARRAY_BUFFER, 0);
@@ -55,7 +55,7 @@ namespace Hazel {
 			{
 				glCreateBuffers(1, &self->m_RendererID);
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self->m_RendererID);
-				glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+				glBufferData(GL_ELEMENT_ARRAY_BUFFER, count, indices, GL_STATIC_DRAW);
 				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 			}
 		);

@@ -120,9 +120,9 @@ namespace Hazel {
 	void ImGuiLayer::OnImGuiRender() {
 		//static bool show;
 		//ImGui::ShowDemoWindow(&show);
-		ImGui::Begin("Test");
-		ImGui::Button("yy");
-		ImGui::End();
+		//ImGui::Begin("Test");
+		//ImGui::Button("yy");
+		//ImGui::End();
 	}
 
 	// Update 这边不是已经可以进行事件处理了吗

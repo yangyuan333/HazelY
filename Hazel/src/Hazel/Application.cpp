@@ -120,12 +120,17 @@ namespace Hazel {
 
 			Renderer::GetRenderer()->WaitAndRender();
 
-			ImGuiLayer::Begin();
-			for (Layer* layer : m_LayerStack) {
-				layer->OnImGuiRender();
-			}
-			ImGuiLayer::End();
-
+			//Application* app = this;
+			//HZ_RENDER_1(
+			//	app,
+			//	{ 
+			//		ImGuiLayer::Begin();
+			//		for (Layer* layer : app->m_LayerStack) {
+			//			layer->OnImGuiRender();
+			//		}
+			//		ImGuiLayer::End(); 
+			//	}
+			//);
 			m_Window->OnUpdate();
 		}
 		OnShutdown();
