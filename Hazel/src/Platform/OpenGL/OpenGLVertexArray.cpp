@@ -1,4 +1,5 @@
 #include "OpenGLVertexArray.h"
+#include "Hazel/Renderer/Renderer.h"
 #include <glad/glad.h>
 
 namespace Hazel {
@@ -34,58 +35,80 @@ namespace Hazel {
 	}
 
 	OpenGLVertexArray::OpenGLVertexArray() {
-		glCreateVertexArrays(1, &m_RendererID);
+		HZ_RENDER_S(
+			{
+				glCreateVertexArrays(1, &self->m_RendererID);
+			}
+		);
 	}
 
 	OpenGLVertexArray::~OpenGLVertexArray()
 	{
-		glDeleteVertexArrays(1, &m_RendererID);
+		HZ_RENDER_S(
+			{
+				glDeleteVertexArrays(1, &self->m_RendererID);
+			}
+		);
 	}
 
 	void OpenGLVertexArray::Bind() const
 	{
-		glBindVertexArray(m_RendererID);
+		HZ_RENDER_S(
+			{
+				glBindVertexArray(self->m_RendererID);
+
+			}
+		);
 	}
 
 	void OpenGLVertexArray::Unbind() const
 	{
-		glBindVertexArray(0);
+		HZ_RENDER_S(
+			{
+				glBindVertexArray(0);
+			}
+		);
 	}
 
 	const void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer)
 	{
 		HZ_CORE_ASSERT(vertexBuffer->GetBufferLayout().GetElements().size(), "Vertex buffer has no layput!");
 		
-		glBindVertexArray(m_RendererID);
-
+		Bind();
 		vertexBuffer->Bind();
-		uint32_t ind = 0;
-		for (const auto& element : vertexBuffer->GetBufferLayout()) {
-			glEnableVertexAttribArray(ind);
-			glVertexAttribPointer(
-				ind,
-				element.GetComponentCount(), ShaderDataTypeToOpenGLBaseType(element.Type),
-				GL_FALSE,
-				vertexBuffer->GetBufferLayout().GetStride(),
-				(const void*)element.Offset);
-			++ind;
-		}
+
+		// 这里就体现了shared_ptr的好处，只要我引用了，这份内存就不会被寄掉
+		HZ_RENDER_1(
+			vertexBuffer,
+			{
+				uint32_t ind = 0;
+				for (const auto& element : vertexBuffer->GetBufferLayout()) {
+					glEnableVertexAttribArray(ind);
+					glVertexAttribPointer(
+						ind,
+						element.GetComponentCount(), ShaderDataTypeToOpenGLBaseType(element.Type),
+						GL_FALSE,
+						vertexBuffer->GetBufferLayout().GetStride(),
+						(const void*)element.Offset);
+					++ind;
+				}
+			}
+		);
 
 		m_VertexBuffers.push_back(vertexBuffer);
 
-		glBindVertexArray(0);
+		Unbind();
 		vertexBuffer->Unbind();
 	}
 
 	const void OpenGLVertexArray::SetIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer)
 	{
-		glBindVertexArray(m_RendererID);
-
+		Bind();
 		indexBuffer->Bind();
 
 		m_IndexBuffers = indexBuffer;
 
-		glBindVertexArray(0);
+		Unbind();
 		indexBuffer->Unbind();
 	}
 

@@ -3,7 +3,7 @@
 #include <Hazel/Renderer/Renderer.h>
 #include <Hazel/Renderer/Buffer.h>
 #include <Hazel/Renderer/Shader.h>
-
+#include <Hazel/Renderer/VertexArray.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <imgui.h>
@@ -14,6 +14,9 @@ public:
 		: Layer("Example") {
 
 	}
+	// 把VAO给改掉，结合现在的command形式
+	// 改shader，接口换成vs fs cs的文件形式
+	// 可选择的把编译期多态，换成运行期多态---先不用，没啥太大的必要
 	void OnAttach() override {
 		/*
 		*	1. 创建VAO
@@ -37,32 +40,14 @@ public:
 		Hazel::BufferLayout m_layout = {
 			{Hazel::ShaderDataType::Float3,"a_Position"}
 		};
-		Hazel::VertexBuffer* m_vb = Hazel::VertexBuffer::Create(vertices, sizeof(vertices)); // 注意：这里也就解绑了
+		std::shared_ptr<Hazel::VertexBuffer> m_vb{ Hazel::VertexBuffer::Create(vertices, sizeof(vertices)) };
+		m_vb->SetLayout(m_layout);
 		
-		Hazel::IndexBuffer* m_eb = Hazel::IndexBuffer::Create(indices, sizeof(indices)); // 注意：这里也就解绑了
-		
+		std::shared_ptr<Hazel::IndexBuffer> m_eb{ Hazel::IndexBuffer::Create(indices, sizeof(indices)) };
 
-		HZ_RENDER_S(
-			{
-				glCreateVertexArrays(1,&(self->m_vao));
-				glBindVertexArray(self->m_vao);
-			}
-		);
-
-		m_vb->Bind();
-		HZ_RENDER(
-			{
-				glEnableVertexAttribArray(0);
-				glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
-			}
-		);
-		m_eb->Bind();
-
-		HZ_RENDER(
-			{
-				glBindVertexArray(0);
-			}
-		);
+		m_vao = Hazel::VertexArray::Create();
+		m_vao->AddVertexBuffer(m_vb);
+		m_vao->SetIndexBuffer(m_eb);
 
 		// Shader生成
 		m_shader = Hazel::Shader::Create("assets/shaders/shader.glsl");
@@ -73,12 +58,8 @@ public:
 		m_shader->Bind();
 		Hazel::Renderer::GetRenderer()->Clear(0.5, 0.5, 0.5, 1.0);
 
-		HZ_RENDER_S(
-			{
-				glBindVertexArray(self->m_vao);
-				glDrawElements(GL_TRIANGLES, 3, GL_UNSIGNED_INT, nullptr);
-			}
-		);
+		m_vao->Bind();
+		Hazel::Renderer::DrawIndexed(m_vao);
 	}
 	void OnEvent(Hazel::Event& event) override {
 		// HZ_TRACE("{0}", event.ToString());
@@ -91,7 +72,8 @@ public:
 	}
 
 private:
-	unsigned int m_vao;
+	Hazel::VertexArray* m_vao;
+	//unsigned int m_vao;
 	Hazel::Shader* m_shader;
 
 };
