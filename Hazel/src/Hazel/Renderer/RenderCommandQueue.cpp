@@ -3,37 +3,43 @@
 namespace Hazel {
 
 	RenderCommandQueue::RenderCommandQueue() {
-		m_CommandBuffer = new uint32_t[10 * 1028 * 1028];
+		m_CommandBuffer = new char[10 * 1024 * 1024];
 		m_CommandBufferPtr = m_CommandBuffer;
-		memset(m_CommandBuffer, 0, 10 * 1028 * 1028 * sizeof(uint32_t));
+		memset(m_CommandBuffer, 0, 10 * 1024 * 1024 * sizeof(char));
 	}
 
 	RenderCommandQueue::~RenderCommandQueue() {
 		delete[] m_CommandBuffer;
 	}
+	
+	void* RenderCommandQueue::Allocate(CommandFunc func, uint32_t size) {
+		*(CommandFunc*)m_CommandBufferPtr = func;
+		m_CommandBufferPtr += sizeof(CommandFunc);
 
-	void RenderCommandQueue::SubmitCommand(CommandFunc func, void* parameters, uint32_t size) {
+		*(uint32_t*)m_CommandBufferPtr = size;
+		m_CommandBufferPtr += sizeof(uint32_t);
 
-		uint32_t*& buffer = m_CommandBufferPtr;
-		memcpy(buffer, (void*)(&func), sizeof(func));
-		buffer += sizeof(func);
+		void* mem = m_CommandBufferPtr;
 
-		memcpy(buffer, parameters, size);
-		buffer += size;
+		m_CommandBufferPtr += size;
 
-		buffer += (16 - (int)buffer % 16); // 指针是8字节，int是4字节，直接截取了低四字节
 		m_RenderCommandCount += 1;
-
+		return mem;
 	}
 
 	void RenderCommandQueue::Execute() {
 
-		uint32_t* buffer = m_CommandBuffer;
+		char* buffer = m_CommandBuffer;
 		for (uint32_t idx = 0; idx < m_RenderCommandCount; ++idx) {
 			CommandFunc func = *(CommandFunc*)(buffer);
 			buffer += sizeof(CommandFunc);
-			buffer += func(buffer);
-			buffer += (16 - (int)buffer % 16); // padding 16 byte
+
+			uint32_t size = *(uint32_t*)buffer;
+			buffer += sizeof(uint32_t);
+
+			func(buffer);
+			
+			buffer += size;
 		}
 
 		m_CommandBufferPtr = m_CommandBuffer;
