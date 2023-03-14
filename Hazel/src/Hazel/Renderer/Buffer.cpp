@@ -1,5 +1,6 @@
 #include "Buffer.h"
 #include "Renderer.h"
+#include "RendererAPI.h"
 #include "Platform/OpenGL/OpenGLBuffer.h"
 
 namespace Hazel {

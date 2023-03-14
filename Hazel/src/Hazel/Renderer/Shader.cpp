@@ -2,6 +2,7 @@
 #include "Hazel/Log.h"
 #include "Renderer.h"
 #include "Platform/OpenGL/OpenGLShader.h"
+#include "RendererAPI.h"
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 

@@ -21,8 +21,8 @@ namespace Hazel {
 		m_Window = std::unique_ptr<Window>(Window::Create());
 		m_Window->SetEventCallback(BIND_EVENT_FN(OnEvent));
 
-		//m_ImGuiLayer = new ImGuiLayer();
-		//PushOverlayer(m_ImGuiLayer);
+		m_ImGuiLayer.reset(new ImGuiLayer());
+		PushOverlayer(m_ImGuiLayer.get()); // 这里必须做ImGui的初始化
 
 		// 复习一下opengl的基本流程和概念了
 		/*

@@ -1,16 +1,18 @@
 #include <Hazel.h>
 #include <Hazel/ImGui/ImGuiLayer.h>
-#include <glm/glm.hpp>
-
-#include <imgui.h>
-
 #include <Hazel/Renderer/Renderer.h>
+
+#include <glm/glm.hpp>
+#include <imgui.h>
 
 class ExampleLayer : public Hazel::Layer {
 public:
 	ExampleLayer()
 		: Layer("Example") {
 
+	}
+	void OnAttach() override {
+		// 
 	}
 	void OnUpdate() override {
 		// HZ_INFO("ExampleLayer::Update");
@@ -21,9 +23,9 @@ public:
 	}
 	void OnImGuiRender() override
 	{
-		ImGui::Begin("Test1");
-		ImGui::Text("Hello World");
-		ImGui::End();
+		//ImGui::Begin("Test1");
+		//ImGui::Text("Hello World");
+		//ImGui::End();
 	}
 
 };
@@ -39,7 +41,7 @@ public:
 
 	virtual void OnInit() override {
 		PushLayer(new ExampleLayer());
-		PushOverlayer(new Hazel::ImGuiLayer());
+		//PushOverlayer(new Hazel::ImGuiLayer());
 	}
 };
 

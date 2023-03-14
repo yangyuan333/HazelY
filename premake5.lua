@@ -65,7 +65,7 @@ project "Hazel"
         defines
         {
             "HZ_PLATFORM_WINDOWS",
-            "HZ_BUILD_DLL",
+            --"HZ_BUILD_DLL",
             "GLFW_INCLUDE_NONE"
         }
 
@@ -122,10 +122,6 @@ project "SandBox"
     links
     {
         "Hazel",
-        "ImGui",
-        "Glad",
-        "GLFW",
-        "opengl32.lib"
     }
 
     filter "system:windows"

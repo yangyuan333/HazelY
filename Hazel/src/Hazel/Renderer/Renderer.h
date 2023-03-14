@@ -1,7 +1,7 @@
 #pragma once
 
 #include "RenderCommandQueue.h"
-#include "RendererAPI.h"
+#include "VertexArray.h"
 
 namespace Hazel {
 

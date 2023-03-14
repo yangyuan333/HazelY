@@ -89,7 +89,6 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\bin\Debug-windows-x86_64\Hazel;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -112,7 +111,6 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\bin\Release-windows-x86_64\Hazel;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -135,7 +133,6 @@
       <SubSystem>Console</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalDependencies>opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\bin\Dist-windows-x86_64\Hazel;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
@@ -145,15 +142,6 @@
   <ItemGroup>
     <ProjectReference Include="..\Hazel\Hazel.vcxproj">
       <Project>{99294D0D-053E-75BE-CEBF-181E3A9371EF}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Hazel\vendor\imgui\ImGui.vcxproj">
-      <Project>{C0FF640D-2C14-8DBE-F595-301E616989EF}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Hazel\vendor\Glad\Glad.vcxproj">
-      <Project>{BDD6857C-A90D-870D-52FA-6C103E10030F}</Project>
-    </ProjectReference>
-    <ProjectReference Include="..\Hazel\vendor\GLFW\GLFW.vcxproj">
-      <Project>{154B857C-0182-860D-AA6E-6C109684020F}</Project>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
