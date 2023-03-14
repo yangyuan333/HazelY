@@ -1,25 +1,43 @@
 #include "OpenGLBuffer.h"
+#include "Hazel/Renderer/Renderer.h"
 #include <glad/glad.h>
 
 namespace Hazel {
 
 	OpenGLVertexBuffer::OpenGLVertexBuffer(float* vertices, uint32_t size) {
-		glCreateBuffers(1, &m_RendererID);
-		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
-		glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		HZ_RENDER_S2(
+			vertices,size,
+			{
+				glCreateBuffers(1, &self->m_RendererID);
+				glBindBuffer(GL_ARRAY_BUFFER, self->m_RendererID);
+				glBufferData(GL_ARRAY_BUFFER, size, vertices, GL_STATIC_DRAW);
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+			}
+		);
 	}
 
 	OpenGLVertexBuffer::~OpenGLVertexBuffer() {
-		glDeleteBuffers(1, &m_RendererID);
+		HZ_RENDER_S(
+			{
+				glDeleteBuffers(1, &self->m_RendererID);
+			}
+		);
 	}
 
 	void OpenGLVertexBuffer::Bind() const {
-		glBindBuffer(GL_ARRAY_BUFFER, m_RendererID);
+		HZ_RENDER_S(
+			{
+				glBindBuffer(GL_ARRAY_BUFFER, self->m_RendererID);
+			}
+		);
 	}
 
 	void OpenGLVertexBuffer::Unbind() const {
-		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		HZ_RENDER(
+			{
+				glBindBuffer(GL_ARRAY_BUFFER, 0);
+			}
+		);
 	}
 
 	void OpenGLVertexBuffer::SetLayout(const BufferLayout& layout) {
@@ -32,22 +50,39 @@ namespace Hazel {
 
 	OpenGLIndexBuffer::OpenGLIndexBuffer(uint32_t* indices, uint32_t count)
 		:m_Count(count) {
-		glCreateBuffers(1, &m_RendererID);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		HZ_RENDER_S2(
+			indices, count,
+			{
+				glCreateBuffers(1, &self->m_RendererID);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self->m_RendererID);
+				glBufferData(GL_ELEMENT_ARRAY_BUFFER, count * sizeof(uint32_t), indices, GL_STATIC_DRAW);
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			}
+		);
 	}
 
 	OpenGLIndexBuffer::~OpenGLIndexBuffer() {
-		glDeleteBuffers(1, &m_RendererID);
+		HZ_RENDER_S(
+			{
+				glDeleteBuffers(1, &self->m_RendererID);
+			}
+		);
 	}
 
 	void OpenGLIndexBuffer::Bind() const {
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_RendererID);
+		HZ_RENDER_S(
+			{
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, self->m_RendererID);
+			}
+		);
 	}
 
 	void OpenGLIndexBuffer::Unbind() const {
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+		HZ_RENDER(
+			{
+				glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+			}
+		);
 	}
 
 }
