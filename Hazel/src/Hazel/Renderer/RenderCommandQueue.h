@@ -4,25 +4,21 @@
 
 namespace Hazel {
 
-	/*
-	* 
-	*/
-
 	class RenderCommandQueue {
 	public:
-
-		using CommandFunc = std::function<uint32_t(void*)>;
+		typedef void(*RenderCommandFn)(void*);
 
 		RenderCommandQueue();
 		virtual ~RenderCommandQueue();
 
-		void SubmitCommand(CommandFunc func, void* parameters, uint32_t size); // Ìí¼Órendercommand
-		void Execute(); // Ö´ÐÐrendercommand
+	public:
+		void* Allocate(RenderCommandFn func, unsigned int size);
+		void Execute();
 
 	private:
-		uint32_t* m_CommandBuffer;
-		uint32_t* m_CommandBufferPtr;
-		uint32_t m_RenderCommandCount{ 0 };
+		unsigned char* m_CommandBuffer;
+		unsigned char* m_CommandBufferPtr;
+		unsigned int m_RenderCommandCount{ 0 };
 	};
 
 }

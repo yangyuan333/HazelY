@@ -1,39 +1,47 @@
 #include "RenderCommandQueue.h"
+#include "Hazel/Log.h"
 
 namespace Hazel {
 
 	RenderCommandQueue::RenderCommandQueue() {
-		m_CommandBuffer = new uint32_t[10 * 1028 * 1028];
+		m_CommandBuffer = new unsigned char[10 * 1024 * 1024];
 		m_CommandBufferPtr = m_CommandBuffer;
-		memset(m_CommandBuffer, 0, 10 * 1028 * 1028 * sizeof(uint32_t));
+		memset(m_CommandBuffer, 0, 10 * 1024 * 1024 * sizeof(unsigned char));
 	}
 
 	RenderCommandQueue::~RenderCommandQueue() {
 		delete[] m_CommandBuffer;
 	}
 
-	void RenderCommandQueue::SubmitCommand(CommandFunc func, void* parameters, uint32_t size) {
+	void* RenderCommandQueue::Allocate(RenderCommandFn func, unsigned int size) {
 
-		uint32_t*& buffer = m_CommandBufferPtr;
-		memcpy(buffer, (void*)(&func), sizeof(func));
-		buffer += sizeof(func);
+		*(RenderCommandFn*)m_CommandBufferPtr = func;
+		m_CommandBufferPtr += sizeof(RenderCommandFn);
 
-		memcpy(buffer, parameters, size);
-		buffer += size;
+		*(int*)m_CommandBufferPtr = size;
+		m_CommandBufferPtr += sizeof(unsigned int);
 
-		buffer += (16 - (int)buffer % 16); // 指针是8字节，int是4字节，直接截取了低四字节
-		m_RenderCommandCount += 1;
+		void* memory = m_CommandBufferPtr;
+		m_CommandBufferPtr += size;
 
+		m_RenderCommandCount++;
+		return memory;
 	}
 
 	void RenderCommandQueue::Execute() {
+		HZ_CORE_TRACE("RenderCommandQueue::Execute -- {0} commands, {1} bytes", m_RenderCommandCount, (m_CommandBufferPtr - m_CommandBuffer));
 
-		uint32_t* buffer = m_CommandBuffer;
-		for (uint32_t idx = 0; idx < m_RenderCommandCount; ++idx) {
-			CommandFunc func = *(CommandFunc*)(buffer);
-			buffer += sizeof(CommandFunc);
-			buffer += func(buffer);
-			buffer += (16 - (int)buffer % 16); // padding 16 byte
+		unsigned char* buffer = m_CommandBuffer;
+
+		for (unsigned int i = 0; i < m_RenderCommandCount; i++)
+		{
+			RenderCommandFn function = *(RenderCommandFn*)buffer;
+			buffer += sizeof(RenderCommandFn);
+
+			unsigned int size = *(unsigned int*)buffer;
+			buffer += sizeof(unsigned int);
+			function(buffer);
+			buffer += size;
 		}
 
 		m_CommandBufferPtr = m_CommandBuffer;
