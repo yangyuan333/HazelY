@@ -6,6 +6,11 @@ namespace Hazel {
 
 	Renderer* Renderer::s_Instance = new Renderer();
 
+	void Renderer::Init()
+	{
+		HZ_RENDER({ RendererAPI::Init(); });
+	}
+
 	void Renderer::Clear(float r, float g, float b, float a) {
 		HZ_RENDER_4(
 			r, g, b, a,
@@ -15,11 +20,11 @@ namespace Hazel {
 		);
 	}
 
-	void Renderer::DrawIndexed(VertexArray* vertexArray) {
-		HZ_RENDER_1(
-			vertexArray,
+	void Renderer::DrawIndexed(VertexArray* vertexArray, bool depthTest) {
+		HZ_RENDER_2(
+			vertexArray, depthTest,
 			{
-				RendererAPI::DrawIndexed(vertexArray);
+				RendererAPI::DrawIndexed(vertexArray, depthTest);
 			}
 		);
 	}

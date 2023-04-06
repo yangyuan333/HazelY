@@ -14,13 +14,29 @@ namespace Hazel {
 		OpenGL
 	};
 
+	struct RenderAPICapabilities {
+		std::string Vendor;
+		std::string Renderer;
+		std::string Version;
+
+		int MaxSamples;
+		float MaxAnisotropy;
+	};
+
 	// render的具体API实现
 	class RendererAPI {
 	public:
 		// 两个核心函数
 		static void Clear(float r, float g, float b, float a);
-		static void DrawIndexed(VertexArray* vertexArray); // 要VAO，把VAO也加上
+		static void DrawIndexed(VertexArray* vertexArray, bool depthTest); // 要VAO，把VAO也加上
 		
+		static void Init();
+		static void Shutdown();
+		static RenderAPICapabilities& GetCapabilities() {
+			static RenderAPICapabilities capabilities;
+			return capabilities;
+		}
+
 	public:
 		// 辅助函数
 		static RendererAPIType GetAPI() { return s_CurrentRendererAPI; }

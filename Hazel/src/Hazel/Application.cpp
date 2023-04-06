@@ -23,6 +23,8 @@ namespace Hazel {
 
 		m_ImGuiLayer.reset(new ImGuiLayer());
 		PushOverlayer(m_ImGuiLayer.get()); // 这里必须做ImGui的初始化
+
+		Renderer::Init();
 	}
 	
 	Application::~Application() {

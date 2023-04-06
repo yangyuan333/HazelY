@@ -16,9 +16,10 @@ namespace Hazel {
 	class Renderer {
 	public:
 		typedef void(*RenderCommandFn)(void*);
+		static void Init();
 		// ºËÐÄº¯Êý
 		static void Clear(float r, float g, float b, float a);
-		static void DrawIndexed(VertexArray* vertexArray);
+		static void DrawIndexed(VertexArray* vertexArray, bool depthTest);
 		static void WaitAndRender();
 	public:
 		static void* Submit(RenderCommandFn fn, unsigned int size) {

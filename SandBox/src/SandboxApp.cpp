@@ -59,7 +59,7 @@ public:
 		Hazel::Renderer::GetRenderer()->Clear(0.5, 0.5, 0.5, 1.0);
 
 		m_vao->Bind();
-		Hazel::Renderer::DrawIndexed(m_vao);
+		Hazel::Renderer::DrawIndexed(m_vao, true);
 	}
 	void OnEvent(Hazel::Event& event) override {
 		// HZ_TRACE("{0}", event.ToString());
