@@ -25,9 +25,9 @@ namespace Hazel {
 		virtual void OnShutdown() {}
 		virtual void OnUpdate() {}
 
-
 		void PushLayer(Layer* layer);
 		void PushOverlayer(Layer* layer);
+		void RenderImGui();
 
 		static Application& Get() { return *s_Instance; }
 		Window& GetWindow() { return *m_Window; }

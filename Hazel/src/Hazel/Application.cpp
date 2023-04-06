@@ -23,60 +23,6 @@ namespace Hazel {
 
 		m_ImGuiLayer.reset(new ImGuiLayer());
 		PushOverlayer(m_ImGuiLayer.get()); // 这里必须做ImGui的初始化
-
-		// 复习一下opengl的基本流程和概念了
-		/*
-		m_VertexArray.reset(VertexArray::Create());
-
-		float vertices[3 * 7] = {
-			-0.5f,-0.5f,0.0f, 1.0f, 0.0f ,1.0f,1.0f,
-			0.5f,-0.5f,0.0f, 0.0f, 1.0f ,1.0f,1.0f,
-			0.0f,0.5f,0.0f, 1.0f, 1.0f ,0.0f,1.0f
-		};
-		unsigned int index[3] = {
-			0,1,2
-		};
-
-		std::shared_ptr<VertexBuffer> m_VertexBuffer(VertexBuffer::Create(vertices, sizeof(vertices)));
-		m_VertexBuffer->SetLayout({
-			{ShaderDataType::Float3, "a_Position"},
-			{ShaderDataType::Float4, "a_Color"}
-			});
-		
-		std::shared_ptr<IndexBuffer> m_IndexBuffer(IndexBuffer::Create(index, sizeof(index) / sizeof(uint32_t)));
-		
-		m_VertexArray->AddVertexBuffer(m_VertexBuffer);
-		m_VertexArray->SetIndexBuffer(m_IndexBuffer);
-
-		std::string vertexSrc = R"(
-			#version 330 core
-			layout(location = 0) in vec3 a_Position;
-			layout(location = 1) in vec4 a_Color;
-			out vec3 v_Position;
-			void main()
-			{
-				gl_Position = vec4(a_Position,1.0f);
-				//v_Position = (a_Position + 1.0f)/2.0f;
-				v_Position = a_Color.xyz;
-			}
-	
-		)";	
-
-		std::string pragmentSrc = R"(
-			#version 330 core
-			layout(location = 0) out vec4 color;
-			in vec3 v_Position;
-
-			void main()
-			{
-				//color = vec4(0.8,0.2,0.3,1.0);
-				color = vec4(v_Position,1.0f);
-			}
-		)";
-
-		m_Shader = std::make_shared<Shader>(vertexSrc, pragmentSrc);
-		m_Shader->Bind();
-		*/
 	}
 	
 	Application::~Application() {
@@ -101,6 +47,14 @@ namespace Hazel {
 		return true;
 	}
 
+	void Application::RenderImGui() {
+		ImGuiLayer::Begin();
+		for (Layer* layer : m_LayerStack) {
+			layer->OnImGuiRender();
+		}
+		ImGuiLayer::End();
+	}
+
 	void Application::Run() {
 		// 为什么这个时候ImGui的事件系统没有被调用，ImGui不是一个即插即用系统吗？
 		// 懂了，GLFW才是系统回调的根源，目前只引了imgui的opengl部分，只是绘制部分，最简单的就是在此处顺带添加glfw的init
@@ -118,19 +72,15 @@ namespace Hazel {
 				layer->OnUpdate();
 			}
 
-			Renderer::GetRenderer()->WaitAndRender();
+			Application* app = this;
+			HZ_RENDER_1(
+				app,
+				{ 
+					app->RenderImGui();
+				}
+			);
 
-			//Application* app = this;
-			//HZ_RENDER_1(
-			//	app,
-			//	{ 
-			//		ImGuiLayer::Begin();
-			//		for (Layer* layer : app->m_LayerStack) {
-			//			layer->OnImGuiRender();
-			//		}
-			//		ImGuiLayer::End(); 
-			//	}
-			//);
+			Renderer::GetRenderer()->WaitAndRender();
 			m_Window->OnUpdate();
 		}
 		OnShutdown();

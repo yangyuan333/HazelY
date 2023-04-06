@@ -43,7 +43,7 @@ public:
 		std::shared_ptr<Hazel::VertexBuffer> m_vb{ Hazel::VertexBuffer::Create(vertices, sizeof(vertices)) };
 		m_vb->SetLayout(m_layout);
 		
-		std::shared_ptr<Hazel::IndexBuffer> m_eb{ Hazel::IndexBuffer::Create(indices, sizeof(indices)) };
+		std::shared_ptr<Hazel::IndexBuffer> m_eb{ Hazel::IndexBuffer::Create(indices, sizeof(indices)/sizeof(unsigned int)) };
 
 		m_vao = Hazel::VertexArray::Create();
 		m_vao->AddVertexBuffer(m_vb);
@@ -66,9 +66,9 @@ public:
 	}
 	void OnImGuiRender() override
 	{
-		//ImGui::Begin("Test1");
-		//ImGui::Text("Hello World");
-		//ImGui::End();
+		ImGui::Begin("Test1");
+		ImGui::Text("Hello World");
+		ImGui::End();
 	}
 
 private:
