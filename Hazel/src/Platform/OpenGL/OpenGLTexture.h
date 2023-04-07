@@ -14,7 +14,7 @@ namespace Hazel {
 
 		void Bind(unsigned int slot) override;
 		
-		OpenGLTexture2D(std::string const& path, bool srgb = true);
+		OpenGLTexture2D(std::string const& path, TextureFormat innerFormat, TextureFormat outerFormat, bool srgb = true);
 		OpenGLTexture2D(TextureFormat format, unsigned int width, unsigned int height, bool srgb = false);
 
 		void UpdateTexture2D(char const* data, TextureFormat format = TextureFormat::RGB, unsigned int type = GL_UNSIGNED_BYTE, unsigned int x_offset = 0, unsigned int y_offset = 0, unsigned int width = 0, unsigned int height = 0);
@@ -37,7 +37,7 @@ namespace Hazel {
 
 		void Bind(unsigned int slot) override;
 
-		OpenGLTextureCubeMap(std::string const& path, bool srgb = true);
+		OpenGLTextureCubeMap(std::string const& path, TextureFormat innerFormat, TextureFormat outerFormat, bool srgb = true);
 		OpenGLTextureCubeMap(TextureFormat format, unsigned int width, unsigned int height, bool srgb = false);
 
 		void UpdateTextureCubaMapLayer(char const* data, unsigned int layer, TextureFormat format = TextureFormat::RGB, unsigned int type = GL_UNSIGNED_BYTE, unsigned int x_offset = 0, unsigned int y_offset = 0, unsigned int width = 0, unsigned int height = 0);

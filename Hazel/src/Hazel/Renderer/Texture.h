@@ -9,7 +9,9 @@ namespace Hazel {
 	{
 		None = 0,
 		RGB = 1,
-		RGBA = 2,
+		BGR = 2,
+		RGBA = 3,
+		BGRA = 4
 	};
 
 	/*
@@ -34,7 +36,7 @@ namespace Hazel {
 		*	1. 文件创建时采用数据立马更新
 		*	2. 其余创建只构建内存，Update再更新数据---不同API有不同的方案，不涉及到接口虚类
 		*/
-		static Texture2D* Create(std::string const& path, bool srgb = true);
+		static Texture2D* Create(std::string const& path, TextureFormat innerFormat, TextureFormat outerFormat, bool srgb = true);
 		static Texture2D* Create(TextureFormat format, unsigned int width, unsigned int height, bool srgb = false);
 	};
 
@@ -45,7 +47,7 @@ namespace Hazel {
 		virtual unsigned int GetWidth() const = 0;
 		virtual unsigned int GetHeight() const = 0;
 	public:
-		static Texture2D* Create(std::string const& path, bool srgb = true);
+		static Texture2D* Create(std::string const& path, TextureFormat innerFormat, TextureFormat outerFormat, bool srgb = true);
 		static Texture2D* Create(TextureFormat format, unsigned int width, unsigned int height, bool srgb = false);
 		
 	};

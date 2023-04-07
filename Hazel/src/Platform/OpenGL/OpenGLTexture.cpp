@@ -2,23 +2,44 @@
 #include "Hazel/Renderer/Renderer.h"
 #include "stb_image.h"
 
+/*
+* TODO:	格式通道不应该由是否是srgb来判断
+*/
+
 namespace Hazel {
 
-	static GLenum HazelToOpenGLTextureFormat(TextureFormat format, bool srgb=false)
+	static GLenum HazelToOpenGLInnerTextureFormat(TextureFormat format, bool srgb=false)
 	{
 		if (srgb) {
 			switch (format)
 			{
-			case Hazel::TextureFormat::RGB:     return GL_SRGB;
-			case Hazel::TextureFormat::RGBA:    return GL_SRGB_ALPHA;
+			case Hazel::TextureFormat::RGB:     return GL_SRGB8;
+			case Hazel::TextureFormat::RGBA:    return GL_SRGB8_ALPHA8;
+			case Hazel::TextureFormat::BGR:     return GL_SRGB8;
+			case Hazel::TextureFormat::BGRA:    return GL_SRGB8_ALPHA8;
 			}
 		}
 		else {
 			switch (format)
 			{
-			case Hazel::TextureFormat::RGB:     return GL_RGB;
-			case Hazel::TextureFormat::RGBA:    return GL_RGBA;
+			case Hazel::TextureFormat::RGB:     return GL_RGB8;
+			case Hazel::TextureFormat::RGBA:    return GL_RGBA8;
+			case Hazel::TextureFormat::BGR:     return GL_RGB8;
+			case Hazel::TextureFormat::BGRA:    return GL_RGBA8;
 			}
+		}
+
+		return 0;
+	}
+
+	static GLenum HazelToOpenGLOuterTextureFormat(TextureFormat format)
+	{
+		switch (format)
+		{
+		case Hazel::TextureFormat::RGB:     return GL_RGB;
+		case Hazel::TextureFormat::RGBA:    return GL_RGBA;
+		case Hazel::TextureFormat::BGR:     return GL_BGR;
+		case Hazel::TextureFormat::BGRA:    return GL_BGRA;
 		}
 
 		return 0;
@@ -45,30 +66,41 @@ namespace Hazel {
 		);
 	}
 
-	OpenGLTexture2D::OpenGLTexture2D(std::string const& path, bool srgb) {
+	OpenGLTexture2D::OpenGLTexture2D(std::string const& path, TextureFormat innerFormat, TextureFormat outerFormat, bool srgb) {
 		/*
 		* use stb_image.h
 		* 不需要进行反转
 		*/
+		
+		int stb_req = 0;
+		switch (innerFormat)
+		{
+		case TextureFormat::RGB: stb_req = STBI_rgb; break;
+		case TextureFormat::RGBA: stb_req = STBI_rgb_alpha; break;
+		default: stb_req = STBI_default;
+		}
+		
 		int width, height, channels;
-		unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, srgb ? STBI_rgb : STBI_rgb_alpha);
+		unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, stb_req);
 		m_Width = width;
 		m_Height = height;
-		m_TextureFormat = srgb ? TextureFormat::RGB : TextureFormat::RGBA;
-		HZ_RENDER_S2(
-			data, srgb,
+		m_TextureFormat = innerFormat;
+		HZ_RENDER_S3(
+			data, srgb, outerFormat,
 			{
 				glCreateTextures(GL_TEXTURE_2D, 1, &(self->m_RedererId));
 				glTextureStorage2D(
 					self->m_RedererId,
 					CalculateMipMapCount(self->m_Width, self->m_Height),
-					HazelToOpenGLTextureFormat(self->m_TextureFormat, srgb),
+					HazelToOpenGLInnerTextureFormat(self->m_TextureFormat, srgb),
 					self->m_Width, self->m_Height
 				);
+
+				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 				glTextureSubImage2D(
 					self->m_RedererId,0,
 					0,0,self->m_Width,self->m_Height,
-					HazelToOpenGLTextureFormat(self->m_TextureFormat, false),GL_UNSIGNED_BYTE,
+					HazelToOpenGLOuterTextureFormat(outerFormat),GL_UNSIGNED_BYTE,
 					data);
 				glGenerateMipmap(self->m_RedererId);
 				stbi_image_free(data);
@@ -89,7 +121,7 @@ namespace Hazel {
 				glTextureStorage2D(
 					self->m_RedererId,
 					CalculateMipMapCount(self->m_Width, self->m_Height),
-					HazelToOpenGLTextureFormat(self->m_TextureFormat, srgb),
+					HazelToOpenGLInnerTextureFormat(self->m_TextureFormat, srgb),
 					self->m_Width, self->m_Height);
 			}
 		);
@@ -116,16 +148,25 @@ namespace Hazel {
 		);
 	}
 
-	OpenGLTextureCubeMap::OpenGLTextureCubeMap(std::string const& path, bool srgb) {
+	OpenGLTextureCubeMap::OpenGLTextureCubeMap(std::string const& path, TextureFormat innerFormat, TextureFormat outerFormat, bool srgb) {
 		/*
 		* 默认输入是一张完整的贴图，正方体展开图
 		*/
+
+		int stb_req = 0;
+		switch (innerFormat)
+		{
+		case TextureFormat::RGB: stb_req = STBI_rgb; break;
+		case TextureFormat::RGBA: stb_req = STBI_rgb_alpha; break;
+		default: stb_req = STBI_default;
+		}
+
 		int width, height, channel;
-		unsigned char* data = stbi_load(path.c_str(), &width, &height, &channel, STBI_rgb);
+		unsigned char* data = stbi_load(path.c_str(), &width, &height, &channel, stb_req);
 		
 		m_Width = width / 4;
 		m_Height = height / 3;
-		m_TextureFormat = TextureFormat::RGB;
+		m_TextureFormat = innerFormat;
 		HZ_CORE_ASSERT(m_Width == m_Height, "Non-square faces!");
 
 		/*
@@ -162,22 +203,23 @@ namespace Hazel {
 			++faceId;
 		}
 
-		HZ_RENDER_S2(
-			faces,srgb,
+		HZ_RENDER_S3(
+			faces,srgb, outerFormat,
 			{
 				glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &(self->m_RedererId));
 				glTextureStorage2D(
 					self->m_RedererId,
 					CalculateMipMapCount(self->m_Width, self->m_Height),
-					HazelToOpenGLTextureFormat(self->m_TextureFormat, srgb),
+					HazelToOpenGLInnerTextureFormat(self->m_TextureFormat, srgb),
 					self->m_Width, self->m_Height);
 
 				//GLuint texture, GLint level, GLint xoffset, GLint yoffset, GLint zoffset, GLsizei width, GLsizei height, GLsizei depth, GLenum format, GLenum type, const void *pixels
+				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 				for (size_t i = 0; i < 6; ++i) {
 					glTextureSubImage3D(
 						self->m_RedererId, 0,
 						0,0,i,self->m_Width,self->m_Height,1,
-						HazelToOpenGLTextureFormat(self->m_TextureFormat, false),GL_UNSIGNED_BYTE,
+						HazelToOpenGLOuterTextureFormat(outerFormat),GL_UNSIGNED_BYTE,
 						faces[i]
 					);
 				}
@@ -191,7 +233,6 @@ namespace Hazel {
 
 				for (size_t i = 0; i < 6; ++i) {
 					delete[] faces[i];
-				
 				}
 			}
 		);
@@ -210,7 +251,7 @@ namespace Hazel {
 				glTextureStorage2D(
 					self->m_RedererId,
 					CalculateMipMapCount(width, height),
-					HazelToOpenGLTextureFormat(self->m_TextureFormat, srgb),
+					HazelToOpenGLInnerTextureFormat(self->m_TextureFormat, srgb),
 					width, height);
 			}
 		);
