@@ -16,6 +16,7 @@ IncludeDir["GLFW"] = "Hazel/vendor/GLFW/include"
 IncludeDir["Glad"] = "Hazel/vendor/Glad/include"
 IncludeDir["ImGui"] = "Hazel/vendor/imgui"
 IncludeDir["glm"] = "Hazel/vendor/glm"
+IncludeDir["stb"] = "Hazel/vendor/stb/include"
 
 ---相当于把GLFW目录下写的premake5.lua给include进来
 include "Hazel/vendor/GLFW"
@@ -48,7 +49,8 @@ project "Hazel"
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.ImGui}",
-        "%{IncludeDir.glm}"
+        "%{IncludeDir.glm}",
+        "%{IncludeDir.stb}"
     }
 
     links
@@ -112,7 +114,8 @@ project "SandBox"
         "%{IncludeDir.GLFW}",
         "%{IncludeDir.Glad}",
         "%{IncludeDir.ImGui}",
-        "%{IncludeDir.glm}"
+        "%{IncludeDir.glm}",
+        "%{IncludeDir.stb}"
     }
 
     libdirs 

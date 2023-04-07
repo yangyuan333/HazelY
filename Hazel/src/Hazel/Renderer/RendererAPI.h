@@ -8,6 +8,8 @@ namespace Hazel {
 	* 而是从static的角度，根据premake时期选择对应的文件进行编译，间接的选择了API
 	*/
 
+	using RendererID = uint32_t;
+
 	enum class HAZEL_API RendererAPIType
 	{
 		None,

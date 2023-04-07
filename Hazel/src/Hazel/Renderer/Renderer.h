@@ -146,6 +146,37 @@ namespace Hazel {
 		new (mem) HZ_RENDER_UNIQUE(HZRenderCommand)(arg0, arg1, arg2, arg3);\
 	}
 
+#define HZ_RENDER_5(arg0, arg1, arg2, arg3, arg4, code) \
+    struct HZ_RENDER_UNIQUE(HZRenderCommand) \
+    {\
+		HZ_RENDER_UNIQUE(HZRenderCommand)(typename ::std::remove_const<typename ::std::remove_reference<decltype(arg0)>::type>::type arg0,\
+											typename ::std::remove_const<typename ::std::remove_reference<decltype(arg1)>::type>::type arg1,\
+											typename ::std::remove_const<typename ::std::remove_reference<decltype(arg2)>::type>::type arg2,\
+											typename ::std::remove_const<typename ::std::remove_reference<decltype(arg3)>::type>::type arg3,\
+											typename ::std::remove_const<typename ::std::remove_reference<decltype(arg4)>::type>::type arg4)\
+		: arg0(arg0), arg1(arg1), arg2(arg2), arg3(arg3), arg4(arg4) {}\
+		\
+        static void Execute(void* argBuffer)\
+        {\
+			auto& arg0 = ((HZ_RENDER_UNIQUE(HZRenderCommand)*)argBuffer)->arg0;\
+			auto& arg1 = ((HZ_RENDER_UNIQUE(HZRenderCommand)*)argBuffer)->arg1;\
+			auto& arg2 = ((HZ_RENDER_UNIQUE(HZRenderCommand)*)argBuffer)->arg2;\
+			auto& arg3 = ((HZ_RENDER_UNIQUE(HZRenderCommand)*)argBuffer)->arg3;\
+			auto& arg4 = ((HZ_RENDER_UNIQUE(HZRenderCommand)*)argBuffer)->arg4;\
+            code\
+        }\
+		\
+		typename ::std::remove_const<typename ::std::remove_reference<decltype(arg0)>::type>::type arg0;\
+		typename ::std::remove_const<typename ::std::remove_reference<decltype(arg1)>::type>::type arg1;\
+		typename ::std::remove_const<typename ::std::remove_reference<decltype(arg2)>::type>::type arg2;\
+		typename ::std::remove_const<typename ::std::remove_reference<decltype(arg3)>::type>::type arg3;\
+		typename ::std::remove_const<typename ::std::remove_reference<decltype(arg4)>::type>::type arg4;\
+    };\
+	{\
+		auto mem = Renderer::Submit(HZ_RENDER_UNIQUE(HZRenderCommand)::Execute, sizeof(HZ_RENDER_UNIQUE(HZRenderCommand)));\
+		new (mem) HZ_RENDER_UNIQUE(HZRenderCommand)(arg0, arg1, arg2, arg3, arg4);\
+	}
+
 #define HZ_RENDER_S(code) auto self = this;\
 	HZ_RENDER_1(self, code)
 
@@ -157,3 +188,6 @@ namespace Hazel {
 
 #define HZ_RENDER_S3(arg0, arg1, arg2, code) auto self = this;\
 	HZ_RENDER_4(self, arg0, arg1, arg2, code)
+
+#define HZ_RENDER_S4(arg0, arg1, arg2, arg3, code) auto self = this;\
+	HZ_RENDER_5(self, arg0, arg1, arg2, arg3, code)
