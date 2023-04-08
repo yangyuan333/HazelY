@@ -4,6 +4,7 @@
 #include <Hazel/Renderer/Buffer.h>
 #include <Hazel/Renderer/Shader.h>
 #include <Hazel/Renderer/VertexArray.h>
+#include <Hazel/Renderer/Texture.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <imgui.h>
@@ -29,16 +30,18 @@ public:
 		// 最终bufferData是在这个函数结束才执行的
 		// 太蠢了
 		static float vertices[] = {
-			-0.5f, -0.5f, 0.0f,
-			 0.5f, -0.5f, 0.0f,
-			 0.0f,  0.5f, 0.0f
+			-1.0f, -1.0f, 0.0f, 0.0f, 0.0f,
+			 1.0f, -1.0f, 0.0f, 1.0f, 0.0f,
+			 1.0f,  1.0f, 0.0f, 1.0f, 1.0f,
+			 -1.0f, 1.0f, 0.0f, 0.0f, 1.0f
 		};
 		static unsigned int indices[] = {
-			0, 1, 2
+			0, 1, 2, 2, 3, 0
 		};
 
 		Hazel::BufferLayout m_layout = {
-			{Hazel::ShaderDataType::Float3,"a_Position"}
+			{Hazel::ShaderDataType::Float3,"a_Position"},
+			{Hazel::ShaderDataType::Float2, "a_Texcoord"}
 		};
 		std::shared_ptr<Hazel::VertexBuffer> m_vb{ Hazel::VertexBuffer::Create(vertices, sizeof(vertices)) };
 		m_vb->SetLayout(m_layout);
@@ -49,6 +52,9 @@ public:
 		m_vao->AddVertexBuffer(m_vb);
 		m_vao->SetIndexBuffer(m_eb);
 
+		// Texture导入
+		std::string texture_path = "assets/textures/Cerberus_A.jpg";
+		m_texture = Hazel::Texture2D::Create(texture_path, Hazel::TextureFormat::RGB, Hazel::TextureFormat::RGB, false);
 		// Shader生成
 		m_shader = Hazel::Shader::Create("assets/shaders/shader.glsl");
 
@@ -57,7 +63,8 @@ public:
 		// HZ_INFO("ExampleLayer::Update");
 		m_shader->Bind();
 		Hazel::Renderer::GetRenderer()->Clear(0.5, 0.5, 0.5, 1.0);
-
+		
+		m_texture->Bind(0);
 		m_vao->Bind();
 		Hazel::Renderer::DrawIndexed(m_vao, true);
 	}
@@ -66,15 +73,16 @@ public:
 	}
 	void OnImGuiRender() override
 	{
-		ImGui::Begin("Test1");
-		ImGui::Text("Hello World");
-		ImGui::End();
+		//ImGui::Begin("Test1");
+		//ImGui::Text("Hello World");
+		//ImGui::End();
 	}
 
 private:
 	Hazel::VertexArray* m_vao;
 	//unsigned int m_vao;
 	Hazel::Shader* m_shader;
+	Hazel::Texture2D* m_texture;
 
 };
 

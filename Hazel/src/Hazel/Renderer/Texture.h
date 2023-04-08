@@ -47,8 +47,8 @@ namespace Hazel {
 		virtual unsigned int GetWidth() const = 0;
 		virtual unsigned int GetHeight() const = 0;
 	public:
-		static Texture2D* Create(std::string const& path, TextureFormat innerFormat, TextureFormat outerFormat, bool srgb = true);
-		static Texture2D* Create(TextureFormat format, unsigned int width, unsigned int height, bool srgb = false);
+		static TextureCubeMap* Create(std::string const& path, TextureFormat innerFormat, TextureFormat outerFormat, bool srgb = true);
+		static TextureCubeMap* Create(TextureFormat format, unsigned int width, unsigned int height, bool srgb = false);
 		
 	};
 }

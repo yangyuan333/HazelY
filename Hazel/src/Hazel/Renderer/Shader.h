@@ -15,6 +15,7 @@ namespace Hazel {
 	public:
 		virtual void Bind() = 0;
 		virtual void Unbind() = 0;
+		virtual unsigned int GetShader() const = 0;
 		static Shader* Create(std::string const& filepath);
 	};
 

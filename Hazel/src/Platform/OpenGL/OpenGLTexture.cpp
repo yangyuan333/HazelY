@@ -1,5 +1,7 @@
 #include "OpenGLTexture.h"
 #include "Hazel/Renderer/Renderer.h"
+
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 /*
@@ -82,6 +84,7 @@ namespace Hazel {
 		
 		int width, height, channels;
 		unsigned char* data = stbi_load(path.c_str(), &width, &height, &channels, stb_req);
+
 		m_Width = width;
 		m_Height = height;
 		m_TextureFormat = innerFormat;
@@ -91,6 +94,7 @@ namespace Hazel {
 				glCreateTextures(GL_TEXTURE_2D, 1, &(self->m_RedererId));
 				glTextureStorage2D(
 					self->m_RedererId,
+					//1,
 					CalculateMipMapCount(self->m_Width, self->m_Height),
 					HazelToOpenGLInnerTextureFormat(self->m_TextureFormat, srgb),
 					self->m_Width, self->m_Height
@@ -102,7 +106,16 @@ namespace Hazel {
 					0,0,self->m_Width,self->m_Height,
 					HazelToOpenGLOuterTextureFormat(outerFormat),GL_UNSIGNED_BYTE,
 					data);
-				glGenerateMipmap(self->m_RedererId);
+				glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+				//glGenerateMipmap(self->m_RedererId);
+				glGenerateTextureMipmap(self->m_RedererId);
+				
+				glTextureParameteri(self->m_RedererId, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+				glTextureParameteri(self->m_RedererId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+				glTextureParameteri(self->m_RedererId, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+				glTextureParameteri(self->m_RedererId, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				glTextureParameterf(self->m_RedererId, GL_TEXTURE_MAX_ANISOTROPY, RendererAPI::GetCapabilities().MaxAnisotropy);
+				
 				stbi_image_free(data);
 			}
 		);
@@ -223,13 +236,15 @@ namespace Hazel {
 						faces[i]
 					);
 				}
-				glGenerateMipmap(self->m_RedererId);
+				glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+				//glGenerateMipmap(self->m_RedererId);
+				glGenerateTextureMipmap(self->m_RedererId);
 
 				glTextureParameteri(self->m_RedererId, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 				glTextureParameteri(self->m_RedererId, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				glTextureParameteri(self->m_RedererId, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 				glTextureParameteri(self->m_RedererId, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-				glTextureParameterf(self->m_RedererId, GL_TEXTURE_MAX_ANISOTROPY, RendererAPI::GetCapabilities().MaxAnisotropy);
+				// glTextureParameterf(self->m_RedererId, GL_TEXTURE_MAX_ANISOTROPY, RendererAPI::GetCapabilities().MaxAnisotropy);
 
 				for (size_t i = 0; i < 6; ++i) {
 					delete[] faces[i];

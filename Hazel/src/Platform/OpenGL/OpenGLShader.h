@@ -16,6 +16,7 @@ namespace Hazel {
 		void CompileAndUploadShader();
 		void Bind() override;
 		void Unbind() override;
+		unsigned int GetShader() const override { return m_RendererID; }
 	private:
 		void ReadShaderFromFile(const std::string& filepath);
 	private:

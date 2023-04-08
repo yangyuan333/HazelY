@@ -881,5 +881,6 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
+    <ClCompile Include="src\Hazel\Renderer\Texture.cpp" />
   </ItemGroup>
 </Project>
