@@ -71,9 +71,10 @@ namespace Hazel {
 	OpenGLTexture2D::OpenGLTexture2D(std::string const& path, TextureFormat innerFormat, TextureFormat outerFormat, bool srgb) {
 		/*
 		* use stb_image.h
-		* 不需要进行反转
 		*/
 		
+		stbi_set_flip_vertically_on_load(true);
+
 		int stb_req = 0;
 		switch (innerFormat)
 		{
@@ -166,6 +167,8 @@ namespace Hazel {
 		* 默认输入是一张完整的贴图，正方体展开图
 		*/
 
+		//stbi_set_flip_vertically_on_load(true);
+
 		int stb_req = 0;
 		switch (innerFormat)
 		{
@@ -187,11 +190,17 @@ namespace Hazel {
 		*/
 		int faceId = 0;
 		std::array<unsigned char*, 6> faces;
+
+		for (size_t i = 0; i < 6; ++i) {
+			faces[i] = new unsigned char[m_Width * m_Height * 3];
+		}
+
 		for (size_t i = 0; i < 4; ++i) {
 			// 横着的四个face数据
-			faces[i] = new unsigned char[m_Width * m_Height * 3];
+			
 			for (size_t y = 0; y < m_Height; ++y) {
-				size_t y_offset = y + m_Height;
+				// size_t y_offset = m_Height * 2 - int(y) - 1;
+				size_t y_offset = m_Height + y;
 				for (size_t x = 0; x < m_Width; ++x) {
 					faces[faceId][(x + y * m_Width) * 3 + 0] = data[(y_offset * m_Width * 4 + i * m_Width + x) * 3 + 0];
 					faces[faceId][(x + y * m_Width) * 3 + 1] = data[(y_offset * m_Width * 4 + i * m_Width + x) * 3 + 1];
@@ -206,7 +215,8 @@ namespace Hazel {
 			if (i == 1)
 				continue;
 			for (size_t y = 0; y < m_Height; ++y) {
-				size_t y_offset = y + m_Height * i;
+				// size_t y_offset = m_Height * (i+1) - y - 1;
+				size_t y_offset = m_Height * i + y;
 				for (size_t x = 0; x < m_Width; ++x) {
 					faces[faceId][(x + y * m_Width) * 3 + 0] = data[(y_offset * m_Width * 4 + m_Width + x) * 3 + 0];
 					faces[faceId][(x + y * m_Width) * 3 + 1] = data[(y_offset * m_Width * 4 + m_Width + x) * 3 + 1];

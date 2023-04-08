@@ -851,6 +851,9 @@
     <ClCompile Include="src\Hazel\Renderer\Shader.cpp">
       <Filter>src\Hazel\Renderer</Filter>
     </ClCompile>
+    <ClCompile Include="src\Hazel\Renderer\Texture.cpp">
+      <Filter>src\Hazel\Renderer</Filter>
+    </ClCompile>
     <ClCompile Include="src\Hazel\Renderer\VertexArray.cpp">
       <Filter>src\Hazel\Renderer</Filter>
     </ClCompile>
@@ -881,6 +884,5 @@
     <ClCompile Include="src\Platform\Windows\WindowsWindow.cpp">
       <Filter>src\Platform\Windows</Filter>
     </ClCompile>
-    <ClCompile Include="src\Hazel\Renderer\Texture.cpp" />
   </ItemGroup>
 </Project>

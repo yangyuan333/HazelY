@@ -53,8 +53,8 @@ public:
 		m_vao->SetIndexBuffer(m_eb);
 
 		// Texture导入
-		std::string texture_path = "assets/textures/Cerberus_A.jpg";
-		m_texture = Hazel::Texture2D::Create(texture_path, Hazel::TextureFormat::RGB, Hazel::TextureFormat::RGB, false);
+		std::string texture_path = "assets/textures/environments/Arches_E_PineTree_Radiance.tga";
+		m_texture = Hazel::TextureCubeMap::Create(texture_path, Hazel::TextureFormat::RGB, Hazel::TextureFormat::RGB, false);
 		// Shader生成
 		m_shader = Hazel::Shader::Create("assets/shaders/shader.glsl");
 
@@ -82,7 +82,7 @@ private:
 	Hazel::VertexArray* m_vao;
 	//unsigned int m_vao;
 	Hazel::Shader* m_shader;
-	Hazel::Texture2D* m_texture;
+	Hazel::TextureCubeMap* m_texture;
 
 };
 
