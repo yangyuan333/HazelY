@@ -57,13 +57,28 @@ public:
 		m_texture = Hazel::TextureCubeMap::Create(texture_path, Hazel::TextureFormat::RGB, Hazel::TextureFormat::RGB, false);
 		// ShaderÉú³É
 		m_shader = Hazel::Shader::Create("assets/shaders/shader.glsl");
-
 	}
 	void OnUpdate() override {
 		// HZ_INFO("ExampleLayer::Update");
 		m_shader->Bind();
 		Hazel::Renderer::GetRenderer()->Clear(0.5, 0.5, 0.5, 1.0);
 		
+		Hazel::UniformBufferDeclaration
+			<	sizeof(int) + sizeof(float)+
+				sizeof(glm::vec2) + sizeof(glm::vec3) + sizeof(glm::vec4) + 
+				sizeof(glm::mat3) + sizeof(glm::mat4)
+			,	7> uniforms;
+		uniforms.Push("a_int", 1);
+		//uniforms.Push("a_unsigned", 2u);
+		uniforms.Push("a_float", 100.0f);
+		uniforms.Push("a_float2", glm::vec2(1, 2));
+		uniforms.Push("a_float3", glm::vec3(1, 2, 3));
+		uniforms.Push("a_float4", glm::vec4(1, 2, 3, 4));
+		uniforms.Push("a_mat3", glm::mat3(1, 2, 3, 4, 5, 6, 7, 8, 9));
+		uniforms.Push("a_mat4", glm::mat4(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16));
+		
+		m_shader->UploadUniformBuffer(uniforms);
+
 		m_texture->Bind(0);
 		m_vao->Bind();
 		Hazel::Renderer::DrawIndexed(m_vao, true);
