@@ -5,6 +5,7 @@
 #include <Hazel/Renderer/Shader.h>
 #include <Hazel/Renderer/VertexArray.h>
 #include <Hazel/Renderer/Texture.h>
+#include <Hazel/Renderer/Framebuffer.h>
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <imgui.h>
@@ -57,10 +58,13 @@ public:
 		m_texture = Hazel::TextureCubeMap::Create(texture_path, Hazel::TextureFormat::RGB, Hazel::TextureFormat::RGB, false);
 		// Shader生成
 		m_shader = Hazel::Shader::Create("assets/shaders/shader.glsl");
+		// FrameBuffer生成
+		m_framebuffer = Hazel::Framebuffer::Create({ {Hazel::FramebufferTextureFormat::RGBA8,Hazel::FramebufferTextureFormat::DEPTH24STENCIL8} });
 	}
 	void OnUpdate() override {
 		// HZ_INFO("ExampleLayer::Update");
 		m_shader->Bind();
+		m_framebuffer->Bind();
 		Hazel::Renderer::GetRenderer()->Clear(0.5, 0.5, 0.5, 1.0);
 		
 		Hazel::UniformBufferDeclaration
@@ -82,6 +86,18 @@ public:
 		m_texture->Bind(0);
 		m_vao->Bind();
 		Hazel::Renderer::DrawIndexed(m_vao, true);
+
+		m_framebuffer->Unbind();
+		HZ_RENDER_S(
+			{
+				glBlitNamedFramebuffer(
+					self->m_framebuffer->GetRendererID(), 0,
+					0, 0, self->m_framebuffer->GetWidth(), self->m_framebuffer->GetHeight(),
+					0, 0, self->m_framebuffer->GetWidth(), self->m_framebuffer->GetHeight(),
+					GL_COLOR_BUFFER_BIT, GL_LINEAR
+				);
+			}
+		); 
 	}
 	void OnEvent(Hazel::Event& event) override {
 		// HZ_TRACE("{0}", event.ToString());
@@ -98,6 +114,7 @@ private:
 	//unsigned int m_vao;
 	Hazel::Shader* m_shader;
 	Hazel::TextureCubeMap* m_texture;
+	Hazel::Framebuffer* m_framebuffer;
 
 };
 

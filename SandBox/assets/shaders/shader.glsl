@@ -30,13 +30,13 @@ uniform mat4 a_mat4;
 
 void main()
 {
-	//vec2 a_uv_n = a_uv * 2.0f - vec2(1.0f,1.0f);
-	//vec3 normvec = normalize(vec3(a_uv_n.g,1.0f,a_uv_n.r));
-	//finalColor = vec4(texture(tex,normvec).xyz,1.0f);
+	vec2 a_uv_n = a_uv * 2.0f - vec2(1.0f,1.0f);
+	vec3 normvec = normalize(vec3(a_uv_n.g,1.0f,a_uv_n.r));
+	finalColor = vec4(texture(tex,normvec).xyz,1.0f);
 	//finalColor = vec4(a_uv.r,a_uv.g,0.6,1.0);
-	vec3 color = vec3(1.0f,1.0f,1.0f);
-	if (a_int == 1){
-		color = color * a_float + a_float2.xyx + a_float3.xxx + a_float4.xxx + a_mat3.xxx + a_mat4.xxx;
-	}
-	finalColor = vec4(color/255.0f,1.0f);
+	//vec3 color = vec3(1.0f,1.0f,1.0f);
+	//if (a_int == 1){
+	//	color = color * a_float + a_float2.xyx + a_float3.xxx + a_float4.xxx + a_mat3.xxx + a_mat4.xxx;
+	//}
+	//finalColor = vec4(color/255.0f,1.0f);
 }
