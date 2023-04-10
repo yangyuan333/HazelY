@@ -153,7 +153,7 @@ namespace Hazel {
 					Utils::HazelToOpenGLInnerFramebufferFormat(self->m_ColorAttachmentFormats[i]),
 					self->m_Width, self->m_Height, i);
 			}
-
+			glCreateTextures(multisample ? GL_TEXTURE_2D_MULTISAMPLE : GL_TEXTURE_2D, 1, &self->m_DepthAttachment);
 			Utils::AttachDepthTexture(
 				self->m_RendererID,
 				self->m_DepthAttachment, self->m_Specification.Samples,
@@ -162,7 +162,7 @@ namespace Hazel {
 				self->m_Width, self->m_Height
 			);
 			
-
+			glBindFramebuffer(GL_FRAMEBUFFER, self->m_RendererID);
 			if (self->m_ColorAttachments.size() > 1) {
 				HZ_CORE_ASSERT(self->m_ColorAttachments.size() <= 4, "Color Attachments are too many!");
 				//GLenum buffer[4] = { GL_COLOR_ATTACHMENT0,GL_COLOR_ATTACHMENT1 ,GL_COLOR_ATTACHMENT2 ,GL_COLOR_ATTACHMENT3 };
@@ -173,7 +173,6 @@ namespace Hazel {
 				// Only depth-pass
 				glDrawBuffer(GL_NONE);
 			}
-			glBindFramebuffer(GL_FRAMEBUFFER, self->m_RendererID);
 			HZ_CORE_ASSERT(glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE, "Framebuffer is incomplete!");
 
 			glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -188,6 +187,24 @@ namespace Hazel {
 			attachmentIndex, slot,
 			{
 				glBindTextureUnit(slot, self->m_ColorAttachments[attachmentIndex]);
+			}
+		);
+	}
+
+	void Hazel::OpenGLFramebuffer::ShowFramebufferTexture(uint32_t attachmentIndex) const
+	{
+		HZ_RENDER_S1(
+			attachmentIndex,
+			{
+				self->Bind();
+				glReadBuffer(GL_COLOR_ATTACHMENT0 + attachmentIndex);
+				glBlitNamedFramebuffer(
+					self->m_RendererID, 0,
+					0, 0, self->m_Width, self->m_Height,
+					0, 0, self->m_Width, self->m_Height,
+					GL_COLOR_BUFFER_BIT, GL_LINEAR
+				);
+				self->Unbind();
 			}
 		);
 	}

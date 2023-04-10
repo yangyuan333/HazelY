@@ -12,6 +12,7 @@ namespace Hazel {
 		void Unbind() const override;
 		void Resize(uint32_t width, uint32_t height, bool forceRecreate = false) override;
 		void BindTexture(uint32_t attachmentIndex = 0, uint32_t slot = 0) const override;
+		void ShowFramebufferTexture(uint32_t attachmentIndex = 0) const override;
 
 		uint32_t GetWidth() const override;
 		uint32_t GetHeight() const override;
@@ -23,7 +24,7 @@ namespace Hazel {
 		const FramebufferSpecification& GetSpecification() const override;
 
 	private:
-		GLenum buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 , GL_COLOR_ATTACHMENT2 , GL_COLOR_ATTACHMENT3 };
+		GLuint buffers[4] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 , GL_COLOR_ATTACHMENT2 , GL_COLOR_ATTACHMENT3 };
 		FramebufferSpecification m_Specification; // 一旦设置就不能再变了
 		RendererID m_RendererID = 0;
 

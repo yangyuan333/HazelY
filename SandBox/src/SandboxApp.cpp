@@ -59,7 +59,9 @@ public:
 		// Shader生成
 		m_shader = Hazel::Shader::Create("assets/shaders/shader.glsl");
 		// FrameBuffer生成
-		m_framebuffer = Hazel::Framebuffer::Create({ {Hazel::FramebufferTextureFormat::RGBA8,Hazel::FramebufferTextureFormat::DEPTH24STENCIL8} });
+		m_framebuffer = Hazel::Framebuffer::Create({ 
+			{Hazel::FramebufferTextureFormat::RGBA8,Hazel::FramebufferTextureFormat::RGBA8,Hazel::FramebufferTextureFormat::DEPTH24STENCIL8}
+			});
 	}
 	void OnUpdate() override {
 		// HZ_INFO("ExampleLayer::Update");
@@ -85,19 +87,24 @@ public:
 
 		m_texture->Bind(0);
 		m_vao->Bind();
+		
 		Hazel::Renderer::DrawIndexed(m_vao, true);
 
-		m_framebuffer->Unbind();
-		HZ_RENDER_S(
-			{
-				glBlitNamedFramebuffer(
-					self->m_framebuffer->GetRendererID(), 0,
-					0, 0, self->m_framebuffer->GetWidth(), self->m_framebuffer->GetHeight(),
-					0, 0, self->m_framebuffer->GetWidth(), self->m_framebuffer->GetHeight(),
-					GL_COLOR_BUFFER_BIT, GL_LINEAR
-				);
-			}
-		); 
+		m_framebuffer->ShowFramebufferTexture(1);
+
+		//HZ_RENDER_S(
+		//	{
+		//		glReadBuffer(GL_COLOR_ATTACHMENT1);
+		//		glBlitNamedFramebuffer(
+		//			self->m_framebuffer->GetRendererID(), 0,
+		//			0, 0, self->m_framebuffer->GetWidth(), self->m_framebuffer->GetHeight(),
+		//			0, 0, self->m_framebuffer->GetWidth(), self->m_framebuffer->GetHeight(),
+		//			GL_COLOR_BUFFER_BIT, GL_LINEAR
+		//		);
+		//		self->m_framebuffer->Unbind();
+		//	}
+		//);
+
 	}
 	void OnEvent(Hazel::Event& event) override {
 		// HZ_TRACE("{0}", event.ToString());

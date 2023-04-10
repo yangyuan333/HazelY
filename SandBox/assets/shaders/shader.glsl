@@ -16,7 +16,8 @@ void main()
 #version 460
 
 in vec2 a_uv;
-layout(location = 0) out vec4 finalColor;
+layout(location = 0) out vec4 finalColor1;
+layout(location = 1) out vec4 finalColor2;
 layout(binding = 0) uniform samplerCube tex; 
 
 uniform int a_int;
@@ -31,8 +32,10 @@ uniform mat4 a_mat4;
 void main()
 {
 	vec2 a_uv_n = a_uv * 2.0f - vec2(1.0f,1.0f);
-	vec3 normvec = normalize(vec3(a_uv_n.g,1.0f,a_uv_n.r));
-	finalColor = vec4(texture(tex,normvec).xyz,1.0f);
+	vec3 normvec1 = normalize(vec3(a_uv_n.g,1.0f,a_uv_n.r));
+	finalColor1 = vec4(texture(tex,normvec1).xyz,1.0f);
+	vec3 normvec2 = normalize(vec3(a_uv_n.g,a_uv_n.r,1.0f));
+	finalColor2 = vec4(texture(tex,normvec2).xyz,1.0f);
 	//finalColor = vec4(a_uv.r,a_uv.g,0.6,1.0);
 	//vec3 color = vec3(1.0f,1.0f,1.0f);
 	//if (a_int == 1){
