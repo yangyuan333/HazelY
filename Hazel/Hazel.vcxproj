@@ -140,6 +140,7 @@
     <ClInclude Include="src\Hazel.h" />
     <ClInclude Include="src\Hazel\Application.h" />
     <ClInclude Include="src\Hazel\Core.h" />
+    <ClInclude Include="src\Hazel\Editor\EditorCamera.h" />
     <ClInclude Include="src\Hazel\EntryPoint.h" />
     <ClInclude Include="src\Hazel\Events\ApplicationEvent.h" />
     <ClInclude Include="src\Hazel\Events\Event.h" />
@@ -153,6 +154,7 @@
     <ClInclude Include="src\Hazel\Log.h" />
     <ClInclude Include="src\Hazel\MouseButtonCodes.h" />
     <ClInclude Include="src\Hazel\Renderer\Buffer.h" />
+    <ClInclude Include="src\Hazel\Renderer\Camera.h" />
     <ClInclude Include="src\Hazel\Renderer\Framebuffer.h" />
     <ClInclude Include="src\Hazel\Renderer\GraphicsContext.h" />
     <ClInclude Include="src\Hazel\Renderer\RenderCommand.h" />
@@ -397,12 +399,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Hazel\Application.cpp" />
+    <ClCompile Include="src\Hazel\Editor\EditorCamera.cpp" />
     <ClCompile Include="src\Hazel\ImGui\ImGuiBuild.cpp" />
     <ClCompile Include="src\Hazel\ImGui\ImGuiLayer.cpp" />
     <ClCompile Include="src\Hazel\Layer.cpp" />
     <ClCompile Include="src\Hazel\LayerStack.cpp" />
     <ClCompile Include="src\Hazel\Log.cpp" />
     <ClCompile Include="src\Hazel\Renderer\Buffer.cpp" />
+    <ClCompile Include="src\Hazel\Renderer\Camera.cpp" />
     <ClCompile Include="src\Hazel\Renderer\Framebuffer.cpp" />
     <ClCompile Include="src\Hazel\Renderer\RenderCommand.cpp" />
     <ClCompile Include="src\Hazel\Renderer\RenderCommandQueue.cpp" />

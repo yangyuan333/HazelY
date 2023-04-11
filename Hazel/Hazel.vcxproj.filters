@@ -819,6 +819,8 @@
     <ClInclude Include="src\Platform\OpenGL\OpenGLFramebuffer.h">
       <Filter>src\Platform\OpenGL</Filter>
     </ClInclude>
+    <ClInclude Include="src\Hazel\Editor\EditorCamera.h" />
+    <ClInclude Include="src\Hazel\Renderer\Camera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\Hazel\Application.cpp">
@@ -896,5 +898,7 @@
     <ClCompile Include="src\Platform\OpenGL\OpenGLFramebuffer.cpp">
       <Filter>src\Platform\OpenGL</Filter>
     </ClCompile>
+    <ClCompile Include="src\Hazel\Editor\EditorCamera.cpp" />
+    <ClCompile Include="src\Hazel\Renderer\Camera.cpp" />
   </ItemGroup>
 </Project>

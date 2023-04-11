@@ -21,5 +21,8 @@
     <ClCompile Include="MRT.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="GLM.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

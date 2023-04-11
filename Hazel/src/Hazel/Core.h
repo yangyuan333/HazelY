@@ -14,6 +14,8 @@
 #error Hazel only support Windows!
 #endif
 
+#define M_PI 3.14159f
+
 // 位运算操作符宏定义
 #define BIT(x) (1 << x)
 
