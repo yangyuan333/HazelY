@@ -13,7 +13,7 @@ namespace Hazel {
 		// 目前是ok的，因为一个application目前只会有一个window
 		auto window = static_cast<GLFWwindow*>(Application::Get().GetWindow().GetNativeWindow());
 		auto state = glfwGetKey(window, static_cast<int32_t>(keycode));
-		return state == GLFW_PRESS || state == GLFW_RELEASE;
+		return state == GLFW_PRESS || state == GLFW_REPEAT;
 	}
 
 	bool WindowsInput::IsMouseButtonPressedImpl(int button) {

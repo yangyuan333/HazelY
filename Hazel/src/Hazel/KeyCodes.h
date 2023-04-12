@@ -1,5 +1,6 @@
 #pragma once
 #include <stdint.h>
+#include <iostream>
 namespace Hazel
 {
 	typedef enum class KeyCode : uint16_t

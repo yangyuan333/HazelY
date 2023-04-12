@@ -22,8 +22,8 @@ namespace Hazel {
 		m_Distance = glm::distance(position, m_FocalPoint);
 
 		// The only factors controlling rotation, m_Yaw and m_Pitch to compute the m_Rotation
-		m_Yaw = 3.0f * (float)M_PI / 4.0f;
-		m_Pitch = M_PI / 4.0f;
+		m_Yaw = 0.0f * (float)M_PI / 4.0f;
+		m_Pitch = -1.0 * M_PI / 4.0f;
 
 		UpdateCameraView();
 	}
@@ -54,13 +54,13 @@ namespace Hazel {
 		else {
 			if (Input::IsMouseButtonPressed(HZ_MOUSE_BUTTON_RIGHT)) {
 				//MouseRotate(delta);
-				
-				if (Input::IsKeyPressed(KeyCode::A)) {
+				MouseRotate(delta);
+				if (Input::IsKeyPressed(KeyCode::D)) {
+					m_FocalPoint += GetRightDirection() * delta_t * KeyPanSpeed;
+				}
+				else if (Input::IsKeyPressed(KeyCode::A)) {
 					//MousePan(glm::vec2{ -1.0f, 0.0f });
 					m_FocalPoint -= GetRightDirection() * delta_t * KeyPanSpeed;
-				}
-				else if (Input::IsKeyPressed(KeyCode::D)) {
-					m_FocalPoint += GetRightDirection() * delta_t * KeyPanSpeed;
 				}
 				else if (Input::IsKeyPressed(KeyCode::W)) {
 					m_FocalPoint += GetForwardDirection() * delta_t * KeyPanSpeed;
@@ -82,6 +82,7 @@ namespace Hazel {
 				MousePan(delta);
 			}
 		}
+		UpdateCameraView();
 		
 	}
 
@@ -155,7 +156,7 @@ namespace Hazel {
 		*/
 		auto [x_speed, y_speed] = PanSpeed();
 		//m_FocalPoint += glm::vec2{ x_speed * delta.x,y_speed * delta.y };
-		m_FocalPoint += GetRightDirection() * x_speed * delta.x;
+		m_FocalPoint -= GetRightDirection() * x_speed * delta.x;
 		m_FocalPoint += GetUpDirection() * y_speed * delta.y;
 	}
 

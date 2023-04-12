@@ -29,12 +29,12 @@ namespace Hazel {
 
 		int64_t operator-(Timer t) {
 			return
-				std::chrono::duration_cast<std::chrono::microseconds>(t.m_Start - m_Start).count();
+				std::chrono::duration_cast<std::chrono::microseconds>(m_Start-t.m_Start).count();
 		}
 
 		int64_t operator-(std::chrono::time_point<std::chrono::high_resolution_clock> t) {
 			return
-				std::chrono::duration_cast<std::chrono::microseconds>(t - m_Start).count();
+				std::chrono::duration_cast<std::chrono::microseconds>(m_Start - t).count();
 		}
 
 	private:

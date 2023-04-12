@@ -9,7 +9,7 @@ namespace Hazel {
 		Camera() = default;
 		Camera(glm::mat4 const& projectionMatrix)
 			:m_ProjectionMatrix(projectionMatrix){}
-		virtual ~Camera();
+		virtual ~Camera() {};
 
 		void SetProjectionMatrix(glm::mat4 const& projectionMatrix) { m_ProjectionMatrix = projectionMatrix; };
 		const glm::mat4& GetProjectionMatrix() const { return m_ProjectionMatrix; }

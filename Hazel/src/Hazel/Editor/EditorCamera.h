@@ -18,7 +18,7 @@ namespace Hazel {
 	public:
 		float GetDistance() const { return m_Distance; }
 		const glm::mat4& GetViewMatrix() const { return m_ViewMatrix; }
-		const glm::mat4& GetViewProjection() const { return m_ProjectionMatrix * m_ViewMatrix; }
+		glm::mat4 GetViewProjection() const { return m_ProjectionMatrix * m_ViewMatrix; }
 
 	public:
 		void SetDistance(float distance) { m_Distance = distance; }
@@ -49,7 +49,7 @@ namespace Hazel {
 
 	private:
 
-		inline static float KeyPanSpeed = 2.5f;
+		inline static float KeyPanSpeed = 0.8f;
 
 		glm::mat4 m_ViewMatrix{ 1.0f };
 		
