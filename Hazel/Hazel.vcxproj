@@ -153,6 +153,7 @@
     <ClInclude Include="src\Hazel\LayerStack.h" />
     <ClInclude Include="src\Hazel\Log.h" />
     <ClInclude Include="src\Hazel\MouseButtonCodes.h" />
+    <ClInclude Include="src\Hazel\Ref.h" />
     <ClInclude Include="src\Hazel\Renderer\Buffer.h" />
     <ClInclude Include="src\Hazel\Renderer\Camera.h" />
     <ClInclude Include="src\Hazel\Renderer\Framebuffer.h" />
