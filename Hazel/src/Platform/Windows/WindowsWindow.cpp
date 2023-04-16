@@ -5,6 +5,7 @@
 #include "Hazel/Events/KeyEvent.h"
 #include "Platform/OpenGL/OpenglContext.h"
 #include <glad/glad.h>
+#include <imgui.h>
 
 namespace Hazel {
 
@@ -51,11 +52,14 @@ namespace Hazel {
 
 		m_Window = glfwCreateWindow((int)props.Width, (int)props.Height, m_Data.Title.c_str(), nullptr, nullptr);
 		
-		m_context = new OpenglContext(m_Window);
-		m_context->init();
+		// m_RendererContext = new OpenGLContext(m_Window);
+		m_RendererContext = RendererContext::Create(m_Window);
+		m_RendererContext->Create();
 
 		// 这个函数是干什么的？
 		glfwSetWindowUserPointer(m_Window, &m_Data);
+		
+		// 垂直同步
 		SetVSync(true);
 
 		// Set GLFW callbacks
@@ -149,18 +153,49 @@ namespace Hazel {
 				data.EventCallback(event);
 			});
 
+		// 创建不同的鼠标形状
+		m_ImGuiMouseCursors[ImGuiMouseCursor_Arrow] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);
+		m_ImGuiMouseCursors[ImGuiMouseCursor_TextInput] = glfwCreateStandardCursor(GLFW_IBEAM_CURSOR);
+		m_ImGuiMouseCursors[ImGuiMouseCursor_ResizeAll] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);   // FIXME: GLFW doesn't have this.
+		m_ImGuiMouseCursors[ImGuiMouseCursor_ResizeNS] = glfwCreateStandardCursor(GLFW_VRESIZE_CURSOR);
+		m_ImGuiMouseCursors[ImGuiMouseCursor_ResizeEW] = glfwCreateStandardCursor(GLFW_HRESIZE_CURSOR);
+		m_ImGuiMouseCursors[ImGuiMouseCursor_ResizeNESW] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);  // FIXME: GLFW doesn't have this.
+		m_ImGuiMouseCursors[ImGuiMouseCursor_ResizeNWSE] = glfwCreateStandardCursor(GLFW_ARROW_CURSOR);  // FIXME: GLFW doesn't have this.
+		m_ImGuiMouseCursors[ImGuiMouseCursor_Hand] = glfwCreateStandardCursor(GLFW_HAND_CURSOR);
+
+		// 不太需要
+		// Update window size to actual size
+		{
+			int width, height;
+			glfwGetWindowSize(m_Window, &width, &height);
+			m_Data.Width = width;
+			m_Data.Height = height;
+		}
 	}
 
 	void WindowsWindow::Shutdown() {
-		glfwDestroyWindow(m_Window);
+		glfwDestroyWindow(m_Window); // 这样比较好，因为需要考虑到多窗口系统
 	}
 
-	void WindowsWindow::OnUpdate() {
-		//glClear(GL_COLOR_BUFFER_BIT);
-		// 先处理事件
+	std::pair<float, float> WindowsWindow::GetWindowPos() const
+	{
+		int x, y;
+		glfwGetWindowPos(m_Window, &x, &y);
+		return { x, y };
+	}
+
+	void WindowsWindow::ProcessEvents()
+	{
 		glfwPollEvents();
-		// 交换缓存帧
-		m_context->SwapBuffer();
+
+		ImGuiMouseCursor imgui_cursor = ImGui::GetMouseCursor();
+		glfwSetCursor(m_Window, m_ImGuiMouseCursors[imgui_cursor] ? m_ImGuiMouseCursors[imgui_cursor] : m_ImGuiMouseCursors[ImGuiMouseCursor_Arrow]);
+		//glfwSetInputMode(m_Window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+	}
+
+	void WindowsWindow::SwapBuffers()
+	{
+		m_RendererContext->SwapBuffers();
 	}
 
 	// 这些都是声明东西 
@@ -179,6 +214,17 @@ namespace Hazel {
 
 	bool WindowsWindow::IsVSync() const {
 		return m_Data.VSync;
+	}
+
+	void WindowsWindow::Maximize()
+	{
+		glfwMaximizeWindow(m_Window);
+	}
+
+	void WindowsWindow::SetTitle(const std::string& title)
+	{
+		m_Data.Title = title;
+		glfwSetWindowTitle(m_Window, m_Data.Title.c_str());
 	}
 
 }

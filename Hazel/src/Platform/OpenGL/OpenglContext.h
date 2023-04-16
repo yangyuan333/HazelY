@@ -1,21 +1,23 @@
 #pragma once
 
 #include <GLFW/glfw3.h>
-#include "Hazel/Renderer/GraphicsContext.h"
+#include "Hazel/Renderer/RendererContext.h"
 #include "Hazel/Core.h"
 
 namespace Hazel {
 
-	class OpenglContext :public GraphicsContext {
-
+	class OpenGLContext :public RendererContext {
 	public:
 
-		OpenglContext(GLFWwindow* windowHandle);
+		OpenGLContext(GLFWwindow* windowHandle);
+		virtual ~OpenGLContext();
+		void Create() override;
+		void BeginFrame() override;
+		void SwapBuffers() override;
 
-		void init() override;
-		void SwapBuffer() override;
+		void OnResize(uint32_t width, uint32_t height) override;
 	private:
-		GLFWwindow* m_windowHandle;
+		GLFWwindow* m_WindowHandle;
 
 	};
 

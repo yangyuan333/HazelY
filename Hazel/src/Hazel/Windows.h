@@ -2,7 +2,7 @@
 
 #include "Hazel/Core.h"
 #include "Hazel/Events/Event.h"
-#include "Hazel/Renderer/GraphicsContext.h"
+#include "Hazel/Renderer/RendererContext.h"
 
 namespace Hazel {
 	// 他为什么没有使用 HAZEL_API呢？他不需要被第三方项目调用吗
@@ -17,7 +17,39 @@ namespace Hazel {
 			:Title(title), Width(width), Height(height) {}
 	};
 
-	class HAZEL_API Window {
+	class Window {
+	public:
+		using EventCallbackFn = std::function<void(Event&)>;
+
+		virtual ~Window() {}
+
+		virtual void ProcessEvents() = 0;
+		virtual void SwapBuffers() = 0;
+
+		virtual uint32_t GetWidth() const = 0;
+		virtual uint32_t GetHeight() const = 0;
+		virtual std::pair<uint32_t, uint32_t> GetSize() const = 0;
+		virtual std::pair<float, float> GetWindowPos() const = 0;
+
+		virtual void Maximize() = 0;
+
+		// Window attributes
+		virtual void SetEventCallback(const EventCallbackFn& callback) = 0;
+		virtual void SetVSync(bool enabled) = 0;
+		virtual bool IsVSync() const = 0;
+
+		virtual const std::string& GetTitle() const = 0;
+		virtual void SetTitle(const std::string& title) = 0;
+
+		virtual void* GetNativeWindow() const = 0;
+
+		virtual Ref<RendererContext> GetRenderContext() = 0;
+
+		static Window* Create(const WindowProps& props = WindowProps());
+	};
+
+	/*
+	class Window {
 	public:
 		using EventCallbackFn = std::function<void(Event&)>;
 
@@ -40,7 +72,7 @@ namespace Hazel {
 		static Window* Create(const WindowProps& props = WindowProps());
 	
 	protected:
-		GraphicsContext* m_context;
+		RendererContext* m_context;
 	};
-
+	*/
 }
