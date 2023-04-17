@@ -127,7 +127,7 @@ namespace Hazel {
 
 	};
 
-	class HAZEL_API Shader {
+	class Shader {
 	public:
 		virtual void Bind() = 0;
 		virtual void Unbind() = 0;
@@ -148,6 +148,21 @@ namespace Hazel {
 
 	public:
 		static std::vector<Shader*> s_AllShaders;
+	};
+
+	class ShaderLibrary : public RefCounted
+	{
+	public:
+		ShaderLibrary();
+		~ShaderLibrary();
+
+		void Add(const Ref<Shader>& shader);
+		void Load(const std::string& path, bool forceCompile = false);
+		void Load(const std::string& name, const std::string& path);
+
+		const Ref<Shader>& Get(const std::string& name) const;
+	private:
+		std::unordered_map<std::string, Ref<Shader>> m_Shaders;
 	};
 
 }

@@ -1,4 +1,6 @@
 #pragma once
+#include "Renderer.h"
+#include "RendererCapabilities.h"
 #include "VertexArray.h"
 
 namespace Hazel {
@@ -10,32 +12,55 @@ namespace Hazel {
 
 	using RendererID = uint32_t;
 
-	enum class HAZEL_API RendererAPIType
+	enum class RendererAPIType
 	{
 		None,
 		OpenGL
 	};
 
-	struct RenderAPICapabilities {
-		std::string Vendor;
-		std::string Renderer;
-		std::string Version;
-
-		int MaxSamples;
-		float MaxAnisotropy;
+	enum class PrimitiveType
+	{
+		None = 0, Triangles, Lines
 	};
 
+	class RendererAPI {
+	public:
+		virtual void Init() = 0;
+		virtual void Shutdown() = 0;
+
+		virtual void BeginFrame() = 0;
+		virtual void EndFrame() = 0;
+		virtual void BeginRenderPass(const Ref<RenderPass>& renderPass) = 0;
+		virtual void EndRenderPass() = 0;
+
+		virtual void RenderMesh(Ref<Pipeline> pipeline, Ref<Mesh> mesh, const glm::mat4& transform) = 0;
+		virtual void RenderMeshWithoutMaterial(Ref<Pipeline> pipeline, Ref<Mesh> mesh, const glm::mat4& transform) = 0;
+		virtual void RenderQuad(Ref<Pipeline> pipeline, Ref<Material> material, const glm::mat4& transform) = 0;
+		virtual void SubmitFullscreenQuad(Ref<Pipeline> pipeline, Ref<Material> material) = 0;
+
+		virtual void SetSceneEnvironment(Ref<Environment> environment, Ref<Image2D> shadow) = 0;
+		virtual std::pair<Ref<TextureCubeMap>, Ref<TextureCubeMap>> CreateEnvironmentMap(const std::string& filepath) = 0;
+		virtual Ref<TextureCubeMap> CreatePreethamSky(float turbidity, float azimuth, float inclination) = 0;
+
+		virtual RendererCapabilities& GetCapabilities() = 0;
+		static RendererAPIType Current() { return s_CurrentRendererAPI; }
+		static void SetAPI(RendererAPIType api);
+	private:
+		inline static RendererAPIType s_CurrentRendererAPI = RendererAPIType::OpenGL;
+	};
+}
+	/*
 	// render的具体API实现
 	class RendererAPI {
 	public:
 		// 两个核心函数
 		static void Clear(float r, float g, float b, float a);
 		static void DrawIndexed(VertexArray* vertexArray, bool depthTest); // 要VAO，把VAO也加上
-		
+
 		static void Init();
 		static void Shutdown();
-		static RenderAPICapabilities& GetCapabilities() {
-			static RenderAPICapabilities capabilities;
+		static RendererCapabilities& GetCapabilities() {
+			static RendererCapabilities capabilities;
 			return capabilities;
 		}
 
@@ -45,5 +70,4 @@ namespace Hazel {
 	private:
 		static RendererAPIType s_CurrentRendererAPI;
 	};
-
-}
+	*/

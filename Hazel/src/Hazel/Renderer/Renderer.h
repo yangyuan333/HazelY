@@ -1,7 +1,20 @@
 #pragma once
 
 #include "RenderCommandQueue.h"
+#include "RendererCapabilities.h"
+#include "RendererContext.h"
+#include "RenderPass.h"
+#include "Mesh.h"
+#include "Material.h"
+#include "SceneEnvironment.h"
+#include "Image.h"
+#include "Pipeline.h"
+#include "Texture.h"
+#include "Shader.h"
 #include "VertexArray.h"
+#include "Hazel/Math/AABB.h"
+
+#include "Hazel/Ref.h"
 
 namespace Hazel {
 
@@ -13,6 +26,69 @@ namespace Hazel {
 	/*
 	*	这个类不需要知道API的类别信息
 	*/
+
+	struct RendererConfig {
+		// "Experimental" features
+		bool ComputeEnvironmentMaps = false;
+		// Tiering settings
+		uint32_t EnvironmentMapResolution = 1024;
+		uint32_t IrradianceMapComputeSamples = 512;
+	};
+
+	class Renderer {
+	public:
+
+		template <class FuncT>
+		static void Submit(FuncT&& func) { 
+			auto renderCmd = [](void* ptr) {
+				auto pFunc = (FuncT*)ptr;
+				(*pFunc)();
+				pFunc->~FuncT();
+			};
+			auto storageBuffer = GetRenderCommandQueue().Allocate(renderCmd, sizeof(FuncT));
+			new (storageBuffer) FuncT(std::forward<FuncT>(func));
+		}
+		static void WaitAndRender();
+
+		static void Init();
+		static void Shutdown();
+
+		static void BeginFrame();
+		static void EndFrame();
+		static void BeginRenderPass(Ref<RenderPass> renderPass, bool clear = true);
+		static void EndRenderPass();
+
+		static void RenderMesh(Ref<Pipeline> pipeline, Ref<Mesh> mesh, const glm::mat4& transform);
+		static void RenderMeshWithoutMaterial(Ref<Pipeline> pipeline, Ref<Mesh> mesh, const glm::mat4& transform);
+		static void RenderQuad(Ref<Pipeline> pipeline, Ref<Material> material, const glm::mat4& transform);
+		static void SubmitFullscreenQuad(Ref<Pipeline> pipeline, Ref<Material> material);
+
+		static void DrawAABB(Ref<Mesh> mesh, const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));
+		static void DrawAABB(const AABB& aabb, const glm::mat4& transform, const glm::vec4& color = glm::vec4(1.0f));
+
+		static void RegisterShaderDependency(Ref<Shader> shader, Ref<Pipeline> pipeline);
+		static void RegisterShaderDependency(Ref<Shader> shader, Ref<Material> material);
+		static void OnShaderReloaded(size_t hash);
+
+		// Environment wait, Physical SkyLight Rendering
+		static void SetSceneEnvironment(Ref<Environment> environment, Ref<Image2D> shadow);
+		static std::pair<Ref<TextureCubeMap>, Ref<TextureCubeMap>> CreateEnvironmentMap(const std::string& filepath);
+		static Ref<TextureCubeMap> CreatePreethamSky(float turbidity, float azimuth, float inclination);
+
+		static Ref<RendererContext> GetContext();
+		static RendererCapabilities& GetCapabilities();
+		static Ref<ShaderLibrary> GetShaderLibrary();
+		static Ref<Texture2D> GetWhiteTexture();
+		static Ref<TextureCubeMap> GetBlackCubeTexture();
+		static Ref<Environment> GetEmptyEnvironment();
+		static RendererConfig& GetConfig();
+	private:
+		static RenderCommandQueue& GetRenderCommandQueue();
+	};
+
+}
+
+/*
 	class Renderer {
 	public:
 		typedef void(*RenderCommandFn)(void*);
@@ -191,3 +267,4 @@ namespace Hazel {
 
 #define HZ_RENDER_S4(arg0, arg1, arg2, arg3, code) auto self = this;\
 	HZ_RENDER_5(self, arg0, arg1, arg2, arg3, code)
+*/
