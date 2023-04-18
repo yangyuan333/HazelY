@@ -35,51 +35,52 @@ namespace Hazel {
 	}
 
 	OpenGLVertexArray::OpenGLVertexArray() {
-		HZ_RENDER_S(
+		Ref<OpenGLVertexArray> instance = this;
+		Renderer::Submit([instance]() mutable
 			{
-				glCreateVertexArrays(1, &self->m_RendererID);
+				glCreateVertexArrays(1, &instance->m_RendererID);
 			}
 		);
 	}
 
 	OpenGLVertexArray::~OpenGLVertexArray()
 	{
-		HZ_RENDER_S(
+		RendererID rendererID = m_RendererID;
+		Renderer::Submit([rendererID]() mutable
 			{
-				glDeleteVertexArrays(1, &self->m_RendererID);
+				glDeleteVertexArrays(1, &rendererID);
 			}
 		);
 	}
 
 	void OpenGLVertexArray::Bind() const
 	{
-		HZ_RENDER_S(
+		Ref<const OpenGLVertexArray> instance = this;
+		Renderer::Submit([instance]() mutable
 			{
-				glBindVertexArray(self->m_RendererID);
-
+				glBindVertexArray(instance->m_RendererID);
 			}
 		);
 	}
 
 	void OpenGLVertexArray::Unbind() const
 	{
-		HZ_RENDER_S(
+		Renderer::Submit([]()
 			{
 				glBindVertexArray(0);
 			}
 		);
 	}
 
-	const void OpenGLVertexArray::AddVertexBuffer(const std::shared_ptr<VertexBuffer>& vertexBuffer)
+	const void OpenGLVertexArray::AddVertexBuffer(const Ref<VertexBuffer>& vertexBuffer)
 	{
-		HZ_CORE_ASSERT(vertexBuffer->GetBufferLayout().GetElements().size(), "Vertex buffer has no layput!");
+		HZ_CORE_ASSERT(vertexBuffer->GetBufferLayout().GetElements().size(), "Vertex buffer has no layout!");
 		
 		Bind();
 		vertexBuffer->Bind();
 
-		// 这里就体现了shared_ptr的好处，只要我引用了，这份内存就不会被寄掉
-		HZ_RENDER_1(
-			vertexBuffer,
+		Ref<const OpenGLVertexArray> instance = this;
+		Renderer::Submit([instance, vertexBuffer]() mutable
 			{
 				uint32_t ind = 0;
 				for (const auto& element : vertexBuffer->GetBufferLayout()) {
@@ -101,7 +102,7 @@ namespace Hazel {
 		vertexBuffer->Unbind();
 	}
 
-	const void OpenGLVertexArray::SetIndexBuffer(const std::shared_ptr<IndexBuffer>& indexBuffer)
+	const void OpenGLVertexArray::SetIndexBuffer(const Ref<IndexBuffer>& indexBuffer)
 	{
 		Bind();
 		indexBuffer->Bind();
@@ -112,12 +113,12 @@ namespace Hazel {
 		indexBuffer->Unbind();
 	}
 
-	const std::vector<std::shared_ptr<VertexBuffer>>& OpenGLVertexArray::GetVertexBuffer() const
+	const std::vector<Ref<VertexBuffer>>& OpenGLVertexArray::GetVertexBuffer() const
 	{
 		return m_VertexBuffers;
 	}
 
-	const std::shared_ptr<IndexBuffer>& OpenGLVertexArray::GetIndexBuffer() const
+	const Ref<IndexBuffer>& OpenGLVertexArray::GetIndexBuffer() const
 	{
 		return m_IndexBuffers;
 	}

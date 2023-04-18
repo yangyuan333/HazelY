@@ -5,18 +5,10 @@
 
 namespace Hazel{
 
-	VertexArray* VertexArray::Create() {
-		switch (RendererAPI::GetAPI())
+	Ref<VertexArray> VertexArray::Create() {
+		switch (RendererAPI::Current())
 		{
-		case(RendererAPIType::None):
-		{
-			HZ_CORE_ASSERT(false, "RendererAPI::None, is currently not supported!");
-			return nullptr;
-		}
-		case(RendererAPIType::OpenGL):
-		{
-			return new OpenGLVertexArray();
-		}
+		case(RendererAPIType::OpenGL): return Ref<OpenGLVertexArray>::Create();
 		}
 
 		HZ_CORE_ASSERT(false, "Unknown RendererAPI!");
