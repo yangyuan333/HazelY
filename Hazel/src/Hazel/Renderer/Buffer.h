@@ -29,7 +29,8 @@ namespace Hazel {
 		* Buffer不要自定义析构，防止数据丢失
 		*/
 		virtual ~Buffer() {
-			Release();
+			if (Data)
+				Release();
 		}
 
 		static Buffer Copy(const void* data, uint32_t size) {

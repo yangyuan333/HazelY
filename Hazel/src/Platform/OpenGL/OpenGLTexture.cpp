@@ -23,11 +23,11 @@ namespace Hazel {
 		* 或者可以直接捕获=this指针，此时this是const，但是它指向的对象不是const的，因此可以改变
 		*/
 		m_Image = Image2D::Create(format, width, height, data);
-		Ref<Image2D> image = m_Image;
-		Renderer::Submit([image, properties]()mutable
+		Ref<OpenGLTexture2D> instance = this;
+		Renderer::Submit([instance, properties] () mutable
 			{
-				image->Invalidate();
-				image.As<OpenGLImage2D>()->CreateSampler(properties);
+				instance->m_Image->Invalidate();
+				instance->m_Image.As<OpenGLImage2D>()->CreateSampler(properties);
 			}
 		);
 
@@ -62,12 +62,13 @@ namespace Hazel {
 		/*
 		* Texture2D中析构函数处进行了Ref和Submit，因此不会提前析构m_Image
 		*/
-		Renderer::Submit([=] () mutable
+		Ref<OpenGLTexture2D> instance = this;
+		Renderer::Submit([instance, properties] () mutable
 			{
 				// 当不使用mutable时，可以使用As绕过const限制，因为const原本限制只针对T*，因此As可以作用，此时再借助于As后的对象即可进行T*指向对象的修改
-				m_Image->Invalidate();
-				m_Image.As<OpenGLImage2D>()->CreateSampler(properties);
-				Buffer& buffer = m_Image->GetBuffer();
+				instance->m_Image->Invalidate();
+				instance->m_Image.As<OpenGLImage2D>()->CreateSampler(properties);
+				Buffer& buffer = instance->m_Image->GetBuffer();
 				stbi_image_free(buffer.Data);
 				buffer = Buffer();
 			}
@@ -91,9 +92,11 @@ namespace Hazel {
 
 	void OpenGLTexture2D::Bind(uint32_t slot) const
 	{
-		Renderer::Submit([=]()
+		Ref<const OpenGLTexture2D> instance = this;
+		Renderer::Submit([instance, slot]()mutable
 			{
-				glBindTextureUnit(slot, m_Image.As<OpenGLImage2D>()->GetRendererID());
+				glBindTextureUnit(slot, instance->m_Image.As<OpenGLImage2D>()->GetRendererID());
+				glBindSampler(slot, instance->m_Image.As<OpenGLImage2D>()->GetSamplerRendererID());
 			}
 		);
 	}
@@ -160,26 +163,27 @@ namespace Hazel {
 			uint32_t size = width * height * Utils::GetImageFormatBPP(format) * 6;
 			m_LocalStorage = Buffer::Copy(data, size);
 		}
-		Renderer::Submit([=]()
+		Ref<OpenGLTextureCubeMap> instance = this;
+		Renderer::Submit([instance]()mutable
 			{
-				glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &m_RendererID);
+				glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &instance->m_RendererID);
 				glTextureStorage2D(
-					m_RendererID,
-					properties.GenerateMips ? Utils::CalculateMipCount(m_Width, m_Height) : 1,
-					Utils::OpenGLImageInternalFormat(format),
-					m_Width, m_Height
+					instance->m_RendererID,
+					instance->m_Properties.GenerateMips ? Utils::CalculateMipCount(instance->m_Width, instance->m_Height) : 1,
+					Utils::OpenGLImageInternalFormat(instance->m_Format),
+					instance->m_Width, instance->m_Height
 				);
-				if (m_LocalStorage.Data)
+				if (instance->m_LocalStorage.Data)
 					glTextureSubImage3D(
-						m_RendererID, 0,
-						0, 0, 0, m_Width, m_Height, 6,
-						Utils::OpenGLImageFormat(m_Format), Utils::OpenGLFormatDataType(m_Format),
-						m_LocalStorage.Data);
-				glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, Utils::OpenGLSamplerFilter(m_Properties.SamplerFilter, m_Properties.GenerateMips));
-				glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, Utils::OpenGLSamplerFilter(m_Properties.SamplerFilter, false));
-				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, Utils::OpenGLSamplerWrap(m_Properties.SamplerWrap));
-				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, Utils::OpenGLSamplerWrap(m_Properties.SamplerWrap));
-				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, Utils::OpenGLSamplerWrap(m_Properties.SamplerWrap));
+						instance->m_RendererID, 0,
+						0, 0, 0, instance->m_Width, instance->m_Height, 6,
+						Utils::OpenGLImageFormat(instance->m_Format), Utils::OpenGLFormatDataType(instance->m_Format),
+						instance->m_LocalStorage.Data);
+				glTextureParameteri(instance->m_RendererID, GL_TEXTURE_MIN_FILTER, Utils::OpenGLSamplerFilter(instance->m_Properties.SamplerFilter, instance->m_Properties.GenerateMips));
+				glTextureParameteri(instance->m_RendererID, GL_TEXTURE_MAG_FILTER, Utils::OpenGLSamplerFilter(instance->m_Properties.SamplerFilter, false));
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, Utils::OpenGLSamplerWrap(instance->m_Properties.SamplerWrap));
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, Utils::OpenGLSamplerWrap(instance->m_Properties.SamplerWrap));
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, Utils::OpenGLSamplerWrap(instance->m_Properties.SamplerWrap));
 			}
 		);
 	}
@@ -194,19 +198,20 @@ namespace Hazel {
 
 	OpenGLTextureCubeMap::~OpenGLTextureCubeMap()
 	{
-		Renderer::Submit([=]()
+		RendererID rendererID = m_RendererID;
+		Renderer::Submit([rendererID]()
 			{
-				m_LocalStorage.Release();
-				glDeleteTextures(1, &m_RendererID);
+				glDeleteTextures(1, &rendererID);
 			}
 		);
 	}
 
 	void OpenGLTextureCubeMap::Bind(uint32_t slot) const
 	{
-		Renderer::Submit([=]()
+		Ref<const OpenGLTextureCubeMap> instance = this;
+		Renderer::Submit([instance, slot]()
 			{
-				glBindTextureUnit(slot, m_RendererID);
+				glBindTextureUnit(slot, instance->m_RendererID);
 			}
 		);
 	}

@@ -21,17 +21,12 @@ namespace Hazel {
 		/*
 		* 这里不能直接调用，因为会立即释放，需要submit到commandbuffer
 		*/
-		m_ImageData.Release();
-		if (m_RendererID) {
-			RendererID rendererID = m_RendererID;
-			Renderer::Submit([rendererID] 
-				{
-					glDeleteTextures(1, &rendererID);
-				}
-			);
-			m_RendererID = 0;
-			
-		}
+		RendererID rendererID = m_RendererID;
+		Renderer::Submit([rendererID] 
+			{
+				glDeleteTextures(1, &rendererID);
+			}
+		);
 	}
 
 	void OpenGLImage2D::Invalidate()
