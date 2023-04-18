@@ -76,6 +76,7 @@ namespace Hazel {
 	};
 
 	class Image2D :public Image {
+	public:
 		static Ref<Image2D> Create(ImageFormat format, uint32_t width, uint32_t height, Buffer buffer);
 		static Ref<Image2D> Create(ImageFormat format, uint32_t width, uint32_t height, const void* data = nullptr);
 	};

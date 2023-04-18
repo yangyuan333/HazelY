@@ -3,53 +3,48 @@
 #include "Platform/OpenGL/OpenGLTexture.h"
 
 namespace Hazel {
-	Texture2D* Texture2D::Create(std::string const& path, TextureFormat innerFormat, TextureFormat outerFormat, bool srgb) {
+	Ref<Texture2D> Texture2D::Create(const std::string& path, TextureProperties properties) {
 		
-		switch (RendererAPI::GetAPI())
+		switch (RendererAPI::Current())
 		{
 		case RendererAPIType::OpenGL:
-			return new OpenGLTexture2D(path, innerFormat, outerFormat, srgb);
-		default:
-			return nullptr;
+			return Ref<OpenGLTexture2D>::Create(path, properties);
 		}
-		int a;
-		a = 1;
+		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		return nullptr;
 	}
 
-	Texture2D* Texture2D::Create(TextureFormat format, unsigned int width, unsigned int height, bool srgb) {
+	Ref<Texture2D> Texture2D::Create(ImageFormat format, uint32_t width, uint32_t height, const void* data, TextureProperties properties) {
 		
-		switch (RendererAPI::GetAPI())
+		switch (RendererAPI::Current())
 		{
 		case RendererAPIType::OpenGL:
-			return new OpenGLTexture2D(format, width, height, srgb);
-		default:
-			return nullptr;
+			return Ref<OpenGLTexture2D>::Create(format, width, height, data, properties);
 		}
-
+		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		return nullptr;
 	}
 
-	TextureCubeMap* TextureCubeMap::Create(std::string const& path, TextureFormat innerFormat, TextureFormat outerFormat, bool srgb) {
+	Ref<TextureCubeMap> TextureCubeMap::Create(const std::string& path, TextureProperties properties) {
 		
-		switch (RendererAPI::GetAPI())
+		switch (RendererAPI::Current())
 		{
 		case RendererAPIType::OpenGL:
-			return new OpenGLTextureCubeMap(path, innerFormat, outerFormat, srgb);
-		default:
-			return nullptr;
+			return Ref<OpenGLTextureCubeMap>::Create(path, properties);
 		}
-
+		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		return nullptr;
 	}
 
-	TextureCubeMap* TextureCubeMap::Create(TextureFormat format, unsigned int width, unsigned int height, bool srgb) {
+	Ref<TextureCubeMap> TextureCubeMap::Create(ImageFormat format, uint32_t width, uint32_t height, const void* data, TextureProperties properties) {
 		
-		switch (RendererAPI::GetAPI())
+		switch (RendererAPI::Current())
 		{
 		case RendererAPIType::OpenGL:
-			return new OpenGLTextureCubeMap(format, width, height, srgb);
-		default:
-			return nullptr;
+			return Ref<OpenGLTextureCubeMap>::Create(format, width, height, data, properties);
 		}
-
+		HZ_CORE_ASSERT(false, "Unknown RendererAPI");
+		return nullptr;
 	}
 
 }

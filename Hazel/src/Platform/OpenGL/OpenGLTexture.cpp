@@ -1,13 +1,225 @@
 #include "OpenGLTexture.h"
+#include "OpenGLImage.h"
 #include "Hazel/Renderer/Renderer.h"
 
 #define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
+#include <stb_image.h>
+
+namespace Hazel {
+
+	/// <summary>
+	/// Texture2D
+	/// </summary>
+	/// <param name="format"></param>
+	/// <param name="width"></param>
+	/// <param name="height"></param>
+	/// <param name="data"></param>
+	/// <param name="properties"></param>
+
+	OpenGLTexture2D::OpenGLTexture2D(ImageFormat format, uint32_t width, uint32_t height, const void* data, TextureProperties properties)
+		:m_Width(width),m_Height(height),m_Properties(properties)
+	{
+		/*
+		* 或者可以直接捕获=this指针，此时this是const，但是它指向的对象不是const的，因此可以改变
+		*/
+		m_Image = Image2D::Create(format, width, height, data);
+		Ref<Image2D> image = m_Image;
+		Renderer::Submit([image, properties]()mutable
+			{
+				image->Invalidate();
+				image.As<OpenGLImage2D>()->CreateSampler(properties);
+			}
+		);
+
+	}
+
+	OpenGLTexture2D::OpenGLTexture2D(const std::string& path, TextureProperties properties)
+		:m_FilePath(path), m_Properties(properties)
+	{
+		stbi_set_flip_vertically_on_load(true);
+		int width, height, channels;
+		if (stbi_is_hdr(path.c_str())) {
+			HZ_CORE_INFO("Loading HDR texture {0}, srgb={1}", path, properties.SRGB);
+			// 这里好像是有问题来着，如果原始图像只有3个通道，此时期望4个通道读取时，会乱？
+			// 出问题的话，优先检查这里
+			float* data = stbi_loadf(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+			HZ_CORE_ASSERT(data, "Data Read Failed");
+			Buffer buffer((void*)data, Utils::GetImageMemorySize(ImageFormat::RGBA32F, width, height));
+			m_Image = Image2D::Create(ImageFormat::RGBA32F, width, height, buffer);
+			m_IsHDR = true;
+		}
+		else {
+			HZ_CORE_INFO("Loading texture {0}, srgb={1}", path, properties.SRGB);
+			uint8_t* data = stbi_load(path.c_str(), &width, &height, &channels, STBI_rgb_alpha);
+			HZ_CORE_ASSERT(data, "Data Read Failed");
+			Buffer buffer((void*)data, Utils::GetImageMemorySize(ImageFormat::RGB, width, height));
+			m_Image = Image2D::Create(ImageFormat::RGBA32F, width, height, buffer);
+			m_IsHDR = false;
+		}
+
+		m_Width = width; m_Height = height; m_Loaded = true;
+
+		/*
+		* Texture2D中析构函数处进行了Ref和Submit，因此不会提前析构m_Image
+		*/
+		Renderer::Submit([=] () mutable
+			{
+				// 当不使用mutable时，可以使用As绕过const限制，因为const原本限制只针对T*，因此As可以作用，此时再借助于As后的对象即可进行T*指向对象的修改
+				m_Image->Invalidate();
+				m_Image.As<OpenGLImage2D>()->CreateSampler(properties);
+				Buffer& buffer = m_Image->GetBuffer();
+				stbi_image_free(buffer.Data);
+				buffer = Buffer();
+			}
+		);
+		
+	}
+
+	OpenGLTexture2D::~OpenGLTexture2D()
+	{
+		/*
+		* 必须加上mutable，因为const虽然不会限制住T*所指向的对象，但是Ref的->操作符被重载后有const版本，他的返回值是const T*，此时就会起到了双重限制效果
+		* lambda表达式捕获了m_Image，也是一个引用，因此m_Image不会被提前释放
+		*/
+		Ref<Image2D> image = m_Image;
+		Renderer::Submit([image]()mutable
+			{
+				image->Release();
+			}
+		);
+	}
+
+	void OpenGLTexture2D::Bind(uint32_t slot) const
+	{
+		Renderer::Submit([=]()
+			{
+				glBindTextureUnit(slot, m_Image.As<OpenGLImage2D>()->GetRendererID());
+			}
+		);
+	}
+
+	uint32_t OpenGLTexture2D::GetMipLevelCount() const
+	{
+		return Utils::CalculateMipCount(m_Width, m_Height);
+	}
+
+	/*
+	* 以下三个函数是配合使用的
+	*/
+	void OpenGLTexture2D::Lock()
+	{
+		/*
+		* 这个有什么用，可能是为了配合多线程使用的
+		*/
+		m_Locked = true;
+	}
+
+	void OpenGLTexture2D::Unlock()
+	{
+		m_Locked = false;
+		Ref<OpenGLTexture2D> instance = this;
+		Ref<OpenGLImage2D> image = m_Image.As<OpenGLImage2D>();
+		Renderer::Submit([instance, image]() mutable 
+			{
+				glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+				glTextureSubImage2D(
+					image->GetRendererID(), 0, 
+					0, 0, instance->m_Width, instance->m_Height, 
+					Utils::OpenGLImageFormat(image->GetFormat()), GL_UNSIGNED_BYTE, 
+					instance->m_Image->GetBuffer().Data);
+				glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
+				if (instance->GetProperties().GenerateMips) {
+					glGenerateTextureMipmap(image->GetRendererID());
+				}
+			}
+		);
+	}
+
+	Buffer OpenGLTexture2D::GetWriteableBuffer()
+	{
+		HZ_CORE_ASSERT(m_Locked, "Texture must be locked!");
+		return m_Image->GetBuffer();
+	}
+
+
+	/// <summary>
+	/// TextureCubeMap
+	/// </summary>
+	/// <param name="format"></param>
+	/// <param name="width"></param>
+	/// <param name="height"></param>
+	/// <param name="data"></param>
+	/// <param name="properties"></param>
+	/*
+	* Texture一定不能先挂掉，不然this就指向空的了
+	*/
+	OpenGLTextureCubeMap::OpenGLTextureCubeMap(ImageFormat format, uint32_t width, uint32_t height, const void* data, TextureProperties properties)
+		:m_Width(width), m_Height(height), m_Format(format), m_Properties(properties)
+	{
+		if (data) {
+			uint32_t size = width * height * Utils::GetImageFormatBPP(format) * 6;
+			m_LocalStorage = Buffer::Copy(data, size);
+		}
+		Renderer::Submit([=]()
+			{
+				glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &m_RendererID);
+				glTextureStorage2D(
+					m_RendererID,
+					properties.GenerateMips ? Utils::CalculateMipCount(m_Width, m_Height) : 1,
+					Utils::OpenGLImageInternalFormat(format),
+					m_Width, m_Height
+				);
+				if (m_LocalStorage.Data)
+					glTextureSubImage3D(
+						m_RendererID, 0,
+						0, 0, 0, m_Width, m_Height, 6,
+						Utils::OpenGLImageFormat(m_Format), Utils::OpenGLFormatDataType(m_Format),
+						m_LocalStorage.Data);
+				glTextureParameteri(m_RendererID, GL_TEXTURE_MIN_FILTER, Utils::OpenGLSamplerFilter(m_Properties.SamplerFilter, m_Properties.GenerateMips));
+				glTextureParameteri(m_RendererID, GL_TEXTURE_MAG_FILTER, Utils::OpenGLSamplerFilter(m_Properties.SamplerFilter, false));
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_S, Utils::OpenGLSamplerWrap(m_Properties.SamplerWrap));
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_T, Utils::OpenGLSamplerWrap(m_Properties.SamplerWrap));
+				glTexParameteri(GL_TEXTURE_CUBE_MAP, GL_TEXTURE_WRAP_R, Utils::OpenGLSamplerWrap(m_Properties.SamplerWrap));
+			}
+		);
+	}
+
+	OpenGLTextureCubeMap::OpenGLTextureCubeMap(const std::string& path, TextureProperties properties)
+		: m_FilePath(path), m_Properties(properties)
+	{
+		/*
+		* TODO
+		*/
+	}
+
+	OpenGLTextureCubeMap::~OpenGLTextureCubeMap()
+	{
+		Renderer::Submit([=]()
+			{
+				m_LocalStorage.Release();
+				glDeleteTextures(1, &m_RendererID);
+			}
+		);
+	}
+
+	void OpenGLTextureCubeMap::Bind(uint32_t slot) const
+	{
+		Renderer::Submit([=]()
+			{
+				glBindTextureUnit(slot, m_RendererID);
+			}
+		);
+	}
+
+	uint32_t OpenGLTextureCubeMap::GetMipLevelCount() const
+	{
+		return Utils::CalculateMipCount(m_Width, m_Height);
+	}
+
+}
+
 
 /*
-* TODO:	格式通道不应该由是否是srgb来判断
-*/
-
 namespace Hazel {
 
 	static GLenum HazelToOpenGLInnerTextureFormat(TextureFormat format, bool srgb=false)
@@ -69,9 +281,6 @@ namespace Hazel {
 	}
 
 	OpenGLTexture2D::OpenGLTexture2D(std::string const& path, TextureFormat innerFormat, TextureFormat outerFormat, bool srgb) {
-		/*
-		* use stb_image.h
-		*/
 		
 		stbi_set_flip_vertically_on_load(true);
 
@@ -145,9 +354,6 @@ namespace Hazel {
 		char const* data,
 		TextureFormat format, unsigned int type,
 		unsigned int x_offset, unsigned int y_offset, unsigned int width, unsigned int height) {
-		/*
-		* TODO: wait HZ_RENDER_S6
-		*/
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////
@@ -163,9 +369,6 @@ namespace Hazel {
 	}
 
 	OpenGLTextureCubeMap::OpenGLTextureCubeMap(std::string const& path, TextureFormat innerFormat, TextureFormat outerFormat, bool srgb) {
-		/*
-		* 默认输入是一张完整的贴图，正方体展开图
-		*/
 
 		//stbi_set_flip_vertically_on_load(true);
 
@@ -185,9 +388,6 @@ namespace Hazel {
 		m_TextureFormat = innerFormat;
 		HZ_CORE_ASSERT(m_Width == m_Height, "Non-square faces!");
 
-		/*
-		* 获取6个面的数据
-		*/
 		int faceId = 0;
 		std::array<unsigned char*, 6> faces;
 
@@ -270,9 +470,6 @@ namespace Hazel {
 			width, height, srgb,
 			{
 				glCreateTextures(GL_TEXTURE_CUBE_MAP, 1, &(self->m_RedererId));
-				/*
-				* 红宝书上说的有bug，前面说cube map是3D函数，后面又用的是2D函数
-				*/
 				glTextureStorage2D(
 					self->m_RedererId,
 					CalculateMipMapCount(width, height),
@@ -286,10 +483,7 @@ namespace Hazel {
 		char const* data, unsigned int layer, 
 		TextureFormat format, unsigned int type, 
 		unsigned int x_offset, unsigned int y_offset, unsigned int width, unsigned int height) {
-		/*
-		* TODO: wait HZ_RENDER_S7
-		*/
 	}
 
-
 }
+*/
